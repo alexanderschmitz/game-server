@@ -1,4 +1,4 @@
-package pjki;
+package de.tu_berlin.pjki_server;
 
 /**
  * Hello world!

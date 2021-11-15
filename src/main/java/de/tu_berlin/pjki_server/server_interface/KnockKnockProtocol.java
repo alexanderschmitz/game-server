@@ -1,4 +1,4 @@
-package de.tu_berlin.server_interface;
+package de.tu_berlin.pjki_server.server_interface;
 
 
 
