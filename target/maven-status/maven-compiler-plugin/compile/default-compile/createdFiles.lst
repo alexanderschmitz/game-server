@@ -1,1 +1,9 @@
-pjki\App.class
+de\tu_berlin\pjki_server\game_engine\Game.class
+de\tu_berlin\pjki_server\game_engine\exception\IllegalMoveException.class
+de\tu_berlin\pjki_server\game_engine\Subject.class
+de\tu_berlin\pjki_server\server_interface\KnockKnockProtocol.class
+de\tu_berlin\pjki_server\game_engine\Observer.class
+de\tu_berlin\pjki_server\App.class
+de\tu_berlin\pjki_server\TicTacToeExample.class
+de\tu_berlin\pjki_server\server_interface\Main.class
+de\tu_berlin\pjki_server\server_interface\ServerProtocol.class

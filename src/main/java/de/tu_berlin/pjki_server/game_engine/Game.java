@@ -4,20 +4,23 @@
 package de.tu_berlin.pjki_server.game_engine;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 public abstract class Game implements Subject {
 
-	private String state;
+	private Map<String, String> state;
 	private ArrayList<Observer> observerList;
-
-	public Game(String state) {
-		super();
-		this.state = state;
-		//TODO add Observers
-		//this.observerList = observerList;
-	}
 	
+	public Game() {
+		state = new HashMap<>();
+		state.put("maxPlayerNumber", "2");
+		state.put("currentPlayer", "0");
+		state.put("draw", Boolean.toString(false));
+		state.put("winner", null);
+	}
+
 	//observer interface related methods
 	@Override
 	public void registerObserver(Observer o) {
@@ -42,15 +45,32 @@ public abstract class Game implements Subject {
 		
 	}
 
-	
-	//game logic related methods
+	/****************************************************************************
+	*	game logic related methods
+	****************************************************************************/
 
-	public String getState() {
+	public Map<String, String> getState() {
 		return state;
 	}
 
-	public void setState(String state) {
+	public void setState(Map<String, String> state) {
 		this.state = state;
 	}
 
+	public void setValue(String key, String value) {
+		state.put(key, value);
+	}
+	
+	public String getValue(String key) {
+		return state.get(key);
+	}
+	
+	public void endTurn() {
+		int currentPlayer = Integer.parseInt(state.get("currentPlayer"));
+		if (currentPlayer >= Integer.parseInt(state.get("maxPlayerNumber"))) {
+			setValue("currentPlayer", "1");
+		} else {
+			setValue("currentPlayer", Integer.toString(currentPlayer + 1));
+		}
+	}
 }
