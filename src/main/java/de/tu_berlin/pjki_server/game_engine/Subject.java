@@ -6,7 +6,7 @@ public interface Subject {
 	
 	//observer related functions
 	public void registerObserver(Observer o);
-	public void unregisterObserver(Observer o);
+	public void unregisterObserver(Observer o) throws Exception;
     public void notifyObservers();
 	
 	//game related functions

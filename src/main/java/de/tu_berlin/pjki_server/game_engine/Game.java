@@ -19,6 +19,7 @@ public abstract class Game implements Subject {
 		state.put("currentPlayer", "0");
 		state.put("draw", Boolean.toString(false));
 		state.put("winner", null);
+		observerList = new ArrayList<Observer>();
 	}
 
 	//observer interface related methods
@@ -29,20 +30,20 @@ public abstract class Game implements Subject {
 	}
 
 	@Override
-	public void unregisterObserver(Observer o) {
-		observerList.remove(observerList.indexOf(o));
+	public void unregisterObserver(Observer o) throws Exception {
+		if (!observerList.remove(o)) {
+			throw new Exception("Observer not in ObserverList");
+		}
 		
 	}
 
 	@Override
 	public void notifyObservers() {
-		for (Iterator<Observer> it =
-	              observerList.iterator(); it.hasNext();)
-	        {
-	            Observer o = it.next();
-	            o.update(state);
-	        }
-		
+		for (Iterator<Observer> it = observerList.iterator(); it.hasNext();){
+			Observer o = it.next();
+			o.update(state);
+		}
+
 	}
 
 	/****************************************************************************
@@ -67,8 +68,8 @@ public abstract class Game implements Subject {
 	
 	public void endTurn() {
 		int currentPlayer = Integer.parseInt(state.get("currentPlayer"));
-		if (currentPlayer >= Integer.parseInt(state.get("maxPlayerNumber"))) {
-			setValue("currentPlayer", "1");
+		if (currentPlayer+1 >= Integer.parseInt(state.get("maxPlayerNumber"))) {
+			setValue("currentPlayer", "0");
 		} else {
 			setValue("currentPlayer", Integer.toString(currentPlayer + 1));
 		}
