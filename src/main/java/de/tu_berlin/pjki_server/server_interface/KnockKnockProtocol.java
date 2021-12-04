@@ -11,7 +11,6 @@ package de.tu_berlin.pjki_server.server_interface;
  */
 
 
-
 public class KnockKnockProtocol {
     private static final int WAITING = 0;
     private static final int SENTKNOCKKNOCK = 1;

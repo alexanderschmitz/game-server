@@ -1,63 +1,41 @@
 package de.tu_berlin.pjki_server.server_interface;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+
+import de.tu_berlin.pjki_server.TicTacToeExample;
+import de.tu_berlin.pjki_server.game_engine.Game;
 
 public class Main {
 	
 	public static void main(String[] args) throws IOException {
 
-//		if (args.length != 1) {
-//			System.err.println("Usage: java KnockKnockServer <port number>");
-//			System.exit(1);
-//		}
-		
-		
-		
-		//int portNumber = Integer.parseInt(args[0]);
-//		int portNumber = 4444;
-//		
-//		try ( 
-//				ServerSocket serverSocket = new ServerSocket(portNumber);
-//				Socket clientSocket = serverSocket.accept();
-//				PrintWriter out =
-//						new PrintWriter(clientSocket.getOutputStream(), true);
-//				BufferedReader in = new BufferedReader(
-//						new InputStreamReader(clientSocket.getInputStream()));
-//				) {
-//
-//			String inputLine, outputLine;
-//
-//			System.out.println("Server running on: " + portNumber);
-//			// Initiate conversation with client
-//			KnockKnockProtocol kkp = new KnockKnockProtocol();
-//			outputLine = kkp.processInput(null);
-//			out.println(outputLine);
-//
-//			while ((inputLine = in.readLine()) != null) {
-//				System.out.println("Received: " + inputLine);
-//				outputLine = kkp.processInput(inputLine);
-//				out.println(outputLine);
-//				if (outputLine.equals("Bye."))
-//					break;
-//			}
-//		} catch (IOException e) {
-//			System.out.println("Exception caught when trying to listen on port "
-//					+ portNumber + " or listening for a connection");
-//			System.out.println(e.getMessage());
-//		}
-		
-		if (args.length != 1) {
-			System.err.println("Usage: java KnockKnockServer <port number>");
-			System.exit(1);
-		}	
-		
-		
-		
-	}
+		ServerSocket server = null;
+		ArrayList<? extends Game> lobby = new ArrayList<>();
 
+		try {
+			server = new ServerSocket(1234); // server is listening on port 1234
+			server.setReuseAddress(true);
+
+			while (true) {
+				Socket client = server.accept();
+				System.out.println("New client connected" + client.getInetAddress().getHostAddress());
+				ClientHandler<TicTacToeExample> clientSocket = new ClientHandler<TicTacToeExample>(client, lobby);
+				new Thread(clientSocket).start();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (server != null) {
+				try {
+					server.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}	
+	}
+	
 }

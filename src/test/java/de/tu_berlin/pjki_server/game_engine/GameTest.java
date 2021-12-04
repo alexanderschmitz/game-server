@@ -8,6 +8,9 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.theories.suppliers.TestedOn;
+
+import com.google.gson.Gson;
 
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 
@@ -78,6 +81,11 @@ public class GameTest {
 		assertEquals(test.getState(), state);
 	}
 	
+	@Test
+	public void stateToJson() {
+		Gson g = new Gson();  
+		System.out.println(g.toJson(test.getState()));
+	}
 	
 	
 	private class SampleGame extends Game{

@@ -2,7 +2,7 @@ package de.tu_berlin.pjki_server.server_interface;
 
 import de.tu_berlin.pjki_server.game_engine.Subject;
 
-public class ServerProtocol<T extends Subject> {
+public class ServerProtocol{
 
 	//define states that a communication can be found in
 	private static final int WAITING = 0;
@@ -16,7 +16,7 @@ public class ServerProtocol<T extends Subject> {
 	
 	private int state = WAITING;
 	
-	public String processInput(T rule) {
+	public String processInput(String input) {
 		return null;
 		
 	}

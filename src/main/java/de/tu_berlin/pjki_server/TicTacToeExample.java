@@ -1,6 +1,8 @@
 package de.tu_berlin.pjki_server;
 
 
+import com.google.gson.Gson;
+
 import de.tu_berlin.pjki_server.game_engine.Game;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 
@@ -11,12 +13,15 @@ public class TicTacToeExample extends Game {
 
 	public TicTacToeExample() {
 		super();
+		Gson g = new Gson();
+		setValue("state", g.toJson(state));
 	}
 
 	@Override
 	public void setup(String[] args) {
+		
 		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override
