@@ -12,6 +12,7 @@ public class Main {
 	
 	public static void main(String[] args) throws IOException {
 
+		System.out.println("Hello World");
 		ServerSocket server = null;
 		ArrayList<? extends Game> lobby = new ArrayList<>();
 
@@ -22,7 +23,7 @@ public class Main {
 			while (true) {
 				Socket client = server.accept();
 				System.out.println("New client connected" + client.getInetAddress().getHostAddress());
-				ClientHandler<TicTacToeExample> clientSocket = new ClientHandler<TicTacToeExample>(client, lobby);
+				ClientHandler clientSocket = new ClientHandler(client, lobby);
 				new Thread(clientSocket).start();
 			}
 		} catch (IOException e) {

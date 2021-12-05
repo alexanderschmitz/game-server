@@ -4,16 +4,19 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.reflect.Method;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.UUID;
 
+import de.tu_berlin.pjki_server.TicTacToeExample;
 import de.tu_berlin.pjki_server.game_engine.Game;
 import de.tu_berlin.pjki_server.game_engine.Observer;
 
-class ClientHandler<T extends Game> implements Observer, Runnable {
+class ClientHandler implements Observer, Runnable {
 	
-	private T game;
+	private Game game;
 	private final Socket clientSocket;
 	ArrayList<? extends Game> lobby;
 	
@@ -57,5 +60,38 @@ class ClientHandler<T extends Game> implements Observer, Runnable {
 		//TODO: update the clients about the game state change
 
 	}
+	
+	
+	/**
+	 * @param uuid The UUID of the game, the client wants to join
+	 * @return the game the player wants to join if one is found with matching uuid. 
+	 * @return or the game with most players
+	 * @return null if there are no games in the lobby
+	 */
+	private Game joinGame(UUID uuid) {
+		for (Game game: lobby) {
+			if (game.getId().equals(uuid)) {
+				return game;
+			}
+		}
+		int maxActivePlayers = 0;
+		Game fullestGame = null;
+		for (Game game: lobby) {
+			int activePlayers = Integer.parseInt(game.getValue("activePlayers"));
+			if (activePlayers >= maxActivePlayers) {
+				maxActivePlayers = activePlayers;
+				fullestGame = game;
+			}
+		}
+		return fullestGame;
+	}
+	
+	private <T extends Game> T createGame(T gameType){
+		
+		T game = gameType.getNewInstance();
+		
+		return null;
+	}
+	
 
 }

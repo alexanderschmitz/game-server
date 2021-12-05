@@ -13,7 +13,7 @@ public abstract class Game implements Subject {
 
 	private Map<String, String> state;
 	private ArrayList<Observer> observerList;
-	private UUID id;
+	private UUID id; 
 	
 	/**
 	 * Constructor for Game.
@@ -23,14 +23,14 @@ public abstract class Game implements Subject {
 	public Game() {
 		state = new HashMap<>();
 		state.put("maxPlayerNumber", "2");
+		state.put("activePlayers", "0");
 		state.put("currentPlayer", "0");
 		state.put("draw", Boolean.toString(false));
 		state.put("winner", null);
 		observerList = new ArrayList<Observer>();
 		id = UUID.randomUUID();
 	}
-
-	
+		
 	/****************************************************************************
 	*	observer interface related methods
 	****************************************************************************/
@@ -94,5 +94,7 @@ public abstract class Game implements Subject {
 	public UUID getId() {
 		return id;
 	}
+
+	public abstract <T extends Game> T getNewInstance();
 	
 }

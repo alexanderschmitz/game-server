@@ -7,3 +7,4 @@ de\tu_berlin\pjki_server\App.class
 de\tu_berlin\pjki_server\TicTacToeExample.class
 de\tu_berlin\pjki_server\server_interface\Main.class
 de\tu_berlin\pjki_server\server_interface\ServerProtocol.class
+de\tu_berlin\pjki_server\server_interface\ClientHandler.class

@@ -16,6 +16,12 @@ public class TicTacToeExample extends Game {
 		Gson g = new Gson();
 		setValue("state", g.toJson(state));
 	}
+	
+	
+	public <T extends Game> T getNewInstance() {
+		return (T) new TicTacToeExample();
+	}
+
 
 	@Override
 	public void setup(String[] args) {
@@ -60,7 +66,5 @@ public class TicTacToeExample extends Game {
 		state[move] = currentPlayer + 1;
 		endTurn();
 	}
-
-
 
 }

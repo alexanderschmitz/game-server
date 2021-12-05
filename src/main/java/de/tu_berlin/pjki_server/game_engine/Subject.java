@@ -8,12 +8,11 @@ public interface Subject {
 	public void registerObserver(Observer o);
 	public void unregisterObserver(Observer o) throws Exception;
     public void notifyObservers();
+    
 	
 	//game related functions
 	public void setup(String[] args);
 	public void move(String[] args) throws IllegalMoveException;	
 	public boolean isOver(String[] args);
-	
-	
 
 }
