@@ -1,0 +1,25 @@
+{
+
+    "name": "clientSchema.json",
+    "title": "JSON schema for the communication from the Game Server Client",
+    "type": "object",
+
+    "properties": {
+        "playerID":{
+            "description": "When first connecting to the server, the Client will receive an id, which he has to send in every following request",
+            "type": "string"
+        },
+        "gameID":{
+            "description": "When first connecting joining a game, the Client will receive an id, which he has to send in every following request",
+            "type": "string"
+        },
+        "intent":{
+            "description": "Defines the request from the client",
+            "enum":["JOINGAME", "GETGAMES", "GETHISTORY"]
+        },
+        "move":{
+
+        }
+    },
+    "required": ["intent"]
+  }

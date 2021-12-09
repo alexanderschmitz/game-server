@@ -85,13 +85,5 @@ class ClientHandler implements Observer, Runnable {
 		}
 		return fullestGame;
 	}
-	
-	private <T extends Game> T createGame(T gameType){
-		
-		T game = gameType.getNewInstance();
-		
-		return null;
-	}
-	
 
 }

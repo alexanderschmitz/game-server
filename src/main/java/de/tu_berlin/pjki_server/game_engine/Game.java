@@ -95,6 +95,6 @@ public abstract class Game implements Subject {
 		return id;
 	}
 
-	public abstract <T extends Game> T getNewInstance();
+	public abstract Game getNewInstance();
 	
 }

@@ -18,8 +18,8 @@ public class TicTacToeExample extends Game {
 	}
 	
 	
-	public <T extends Game> T getNewInstance() {
-		return (T) new TicTacToeExample();
+	public Game getNewInstance() {
+		return new TicTacToeExample();
 	}
 
 

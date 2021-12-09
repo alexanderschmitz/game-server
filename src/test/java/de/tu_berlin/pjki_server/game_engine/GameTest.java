@@ -102,6 +102,12 @@ public class GameTest {
 		public boolean isOver(String[] args) {
 			return false;
 		}
+
+		@Override
+		public Game getNewInstance() {
+			return null;
+		}	
+		
 	}
 	
 	private class GameObserver implements Observer {

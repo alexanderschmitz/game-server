@@ -1,6 +1,10 @@
 package de.tu_berlin.pjki_server.server_interface;
 
-import de.tu_berlin.pjki_server.game_engine.Subject;
+import java.util.ArrayList;
+
+import com.google.gson.Gson;
+
+import de.tu_berlin.pjki_server.game_engine.Game;
 
 public class ServerProtocol{
 
@@ -15,9 +19,43 @@ public class ServerProtocol{
 	//states for user creation and management are missing
 	
 	private int state = WAITING;
+	private ArrayList<? extends Game> lobby;
 	
+	
+	public ServerProtocol(ArrayList<? extends Game> lobby) {
+		this.lobby = lobby;
+	}
+
+
 	public String processInput(String input) {
-		return null;
+		Gson input = new Gson(input);
+		String output = null;
+		switch(state) {
+			case WAITING:
+				output = new Gson().toJson(lobby);
+				state = SENTLOBBIES;
+				break;
+			case SENTLOBBIES:
+				
+				break;
+			case JOINEDGAME:
+			
+				break;
+			case GAMERUNNING:
+			
+				break;
+			case GAMEOVER:
+			
+				break;
+			case SENTHISTORY:
+			
+				break;
+			case OTHER:
+				
+				break;
+		}
+		
+		return output;
 		
 	}
 	
