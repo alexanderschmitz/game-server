@@ -7,7 +7,7 @@ class Request {
 	private UUID gameID;
 	private Intent intent;
 		
-	private enum Intent{
+	enum Intent{
 		JOINGAME, GETGAMES
 	}
 

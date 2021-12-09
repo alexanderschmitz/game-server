@@ -1,9 +1,9 @@
 package de.tu_berlin.pjki_server.server_interface;
 
-import java.util.ArrayList;
-
+import java.util.List;
 import com.google.gson.Gson;
 
+import de.tu_berlin.pjki_server.TicTacToeExample;
 import de.tu_berlin.pjki_server.game_engine.Game;
 
 public class ServerProtocol{
@@ -19,44 +19,47 @@ public class ServerProtocol{
 	//states for user creation and management are missing
 	
 	private int state = WAITING;
-	private ArrayList<? extends Game> lobby;
+	private List<Game> lobby;
 	
 	
-	public ServerProtocol(ArrayList<? extends Game> lobby) {
+	public ServerProtocol(List<Game> lobby) {
 		this.lobby = lobby;
 	}
 
 
 	public String processInput(String input) {
-		Gson input = new Gson(input);
+		Request request = new Gson().fromJson(input, Request.class);
 		String output = null;
-		switch(state) {
-			case WAITING:
+		switch(request.getIntent()) {
+			case GETGAMES:
 				output = new Gson().toJson(lobby);
-				state = SENTLOBBIES;
 				break;
-			case SENTLOBBIES:
+			case JOINGAME:
+				Game game = getAvailableGame();
+				if (game == null) {
+					game = new TicTacToeExample();
+				}
+				break;
+			default:
 				
-				break;
-			case JOINEDGAME:
-			
-				break;
-			case GAMERUNNING:
-			
-				break;
-			case GAMEOVER:
-			
-				break;
-			case SENTHISTORY:
-			
-				break;
-			case OTHER:
-				
-				break;
 		}
 		
 		return output;
 		
+	}
+	
+	public Game getAvailableGame() {
+		Game game = null;
+		
+		for (Game g:lobby) {
+			int activePlayers = Integer.parseInt(g.getValue("activePlayers"));
+			int maxPlayerNumber = Integer.parseInt(g.getValue("maxPlayerNumber"));
+			if (activePlayers < maxPlayerNumber) {
+				game = g;
+			}
+		}
+		
+		return game;
 	}
 	
 

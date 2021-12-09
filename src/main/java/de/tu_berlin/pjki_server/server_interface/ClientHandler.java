@@ -7,8 +7,11 @@ import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import com.google.gson.Gson;
 
 import de.tu_berlin.pjki_server.TicTacToeExample;
 import de.tu_berlin.pjki_server.game_engine.Game;
@@ -18,9 +21,9 @@ class ClientHandler implements Observer, Runnable {
 	
 	private Game game;
 	private final Socket clientSocket;
-	ArrayList<? extends Game> lobby;
+	List<Game> lobby;
 	
-	public ClientHandler(Socket clientSocket, ArrayList<? extends Game> lobby) {
+	public ClientHandler(Socket clientSocket, List<Game> lobby) {
 		this.clientSocket = clientSocket;
 		this.lobby = lobby;
 	}
@@ -35,7 +38,11 @@ class ClientHandler implements Observer, Runnable {
 
              String line;
              while ((line = in.readLine()) != null) {
-                 System.out.printf(" Sent from the client: %s\n", line);
+            	 try {
+            		 
+            	 }
+            	 Request request = new Gson().fromJson(line, Request.class);
+                 System.out.printf(" Sent from the client: %s\n", new Gson().toJson(request));
                  out.println(line);
              }
          } catch (IOException e) {
@@ -85,5 +92,5 @@ class ClientHandler implements Observer, Runnable {
 		}
 		return fullestGame;
 	}
-
+	
 }

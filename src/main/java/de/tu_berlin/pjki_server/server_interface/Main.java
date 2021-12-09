@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import de.tu_berlin.pjki_server.TicTacToeExample;
 import de.tu_berlin.pjki_server.game_engine.Game;
@@ -14,7 +16,7 @@ public class Main {
 
 		System.out.println("Hello World");
 		ServerSocket server = null;
-		ArrayList<? extends Game> lobby = new ArrayList<>();
+		List<Game> lobby = Collections.synchronizedList(new ArrayList<Game>());
 
 		try {
 			server = new ServerSocket(1234); // server is listening on port 1234
