@@ -115,8 +115,8 @@ public class GameTest {
 		private Map<String, String> state;
 		
 		@Override
-		public void update(Map<String, String> state) {
-			this.state = state;
+		public void update(Game game) {
+			this.state = game.getState();
 			
 		}
 		

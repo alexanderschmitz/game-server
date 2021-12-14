@@ -15,7 +15,7 @@
         },
         "intent":{
             "description": "Defines the request from the client",
-            "enum":["JOINGAME", "GETGAMES", "GETHISTORY"]
+            "enum":["JOINGAME", "GETGAMES", "GETHISTORY", "MOVE"]
         },
         "move":{
 

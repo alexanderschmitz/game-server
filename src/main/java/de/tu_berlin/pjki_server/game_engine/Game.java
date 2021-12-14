@@ -13,7 +13,7 @@ public abstract class Game implements Subject {
 
 	private Map<String, String> state;
 	private ArrayList<Observer> observerList;
-	private UUID id; 
+	public final UUID ID = UUID.randomUUID(); 
 	
 	/**
 	 * Constructor for Game.
@@ -28,7 +28,6 @@ public abstract class Game implements Subject {
 		state.put("draw", Boolean.toString(false));
 		state.put("winner", null);
 		observerList = new ArrayList<Observer>();
-		id = UUID.randomUUID();
 	}
 		
 	/****************************************************************************
@@ -53,7 +52,7 @@ public abstract class Game implements Subject {
 	public void notifyObservers() {
 		for (Iterator<Observer> it = observerList.iterator(); it.hasNext();){
 			Observer o = it.next();
-			o.update(state);
+			o.update(this);
 		}
 
 	}
@@ -90,10 +89,6 @@ public abstract class Game implements Subject {
 	/****************************************************************************
 	*	general 
 	****************************************************************************/
-	
-	public UUID getId() {
-		return id;
-	}
 
 	public abstract Game getNewInstance();
 	

@@ -6,9 +6,10 @@ class Request {
 	private UUID playerID;
 	private UUID gameID;
 	private Intent intent;
+	private String[] move;
 		
 	enum Intent{
-		JOINGAME, GETGAMES
+		JOINGAME, GETGAMES, MOVE
 	}
 
 
@@ -40,7 +41,15 @@ class Request {
 	public void setGameID(UUID gameID) {
 		this.gameID = gameID;
 	}
-	
-	
+
+
+	public String[] getMove() {
+		return move;
+	}
+
+
+	public void setMove(String[] move) {
+		this.move = move;
+	}	
 	
 }
