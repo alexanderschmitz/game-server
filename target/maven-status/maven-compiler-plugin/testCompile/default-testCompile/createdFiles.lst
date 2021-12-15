@@ -1,5 +1,7 @@
-de\tu_berlin\pjki_server\AppTest.class
+de\tu_berlin\pjki_server\server_interface\ServerProtocolTest.class
 de\tu_berlin\pjki_server\game_engine\GameTest$GameObserver.class
+de\tu_berlin\pjki_server\AppTest.class
 de\tu_berlin\pjki_server\game_engine\GameTest.class
+de\tu_berlin\pjki_server\server_interface\RequestTest.class
 de\tu_berlin\pjki_server\game_engine\GameTest$1.class
 de\tu_berlin\pjki_server\game_engine\GameTest$SampleGame.class

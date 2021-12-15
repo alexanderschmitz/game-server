@@ -3,6 +3,7 @@ package de.tu_berlin.pjki_server.game_engine;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -14,6 +15,7 @@ public abstract class Game implements Subject {
 	private Map<String, String> state;
 	private ArrayList<Observer> observerList;
 	public final UUID ID = UUID.randomUUID(); 
+	private List<UUID> playerList;
 	
 	/**
 	 * Constructor for Game.
@@ -28,6 +30,7 @@ public abstract class Game implements Subject {
 		state.put("draw", Boolean.toString(false));
 		state.put("winner", null);
 		observerList = new ArrayList<Observer>();
+		playerList = new ArrayList<UUID>();
 	}
 		
 	/****************************************************************************
@@ -91,5 +94,18 @@ public abstract class Game implements Subject {
 	****************************************************************************/
 
 	public abstract Game getNewInstance();
+
+	public boolean isFull() {
+		int activePlayers =  Integer.parseInt(state.get("activePlayers"));
+		int maxPlayers = Integer.parseInt(state.get("maxPlayerNumber"));
+		return (activePlayers >= maxPlayers);
+	}
 	
+	public List<UUID> getPlayerList() {
+		return playerList;
+	}
+	
+	public void addPlayer(UUID playerID) {
+		playerList.add(playerID);
+	}
 }
