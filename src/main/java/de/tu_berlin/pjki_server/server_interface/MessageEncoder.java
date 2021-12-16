@@ -2,21 +2,20 @@ package de.tu_berlin.pjki_server.server_interface;
 
 import javax.websocket.EncodeException;
 
-import java.io.Writer;
 import java.util.Iterator;
 import java.util.Map;
 
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
-import javax.json.JsonWriter;
 import javax.json.spi.JsonProvider;
 import javax.websocket.Encoder;
 import javax.websocket.EndpointConfig;
 
+import de.tu_berlin.pjki_server.TicTacToeExample;
 import de.tu_berlin.pjki_server.game_engine.Game;
 
-class MessageEncoder<T extends Game> implements Encoder.TextStream<T> {
+class MessageEncoder implements Encoder.Text<TicTacToeExample> {
 
 	@Override
 	public void init(EndpointConfig config) {
@@ -31,15 +30,14 @@ class MessageEncoder<T extends Game> implements Encoder.TextStream<T> {
 	}
 
 	@Override
-	public void encode(T game, Writer writer) throws EncodeException {
+	public String encode(TicTacToeExample game) throws EncodeException {
 		JsonProvider provider = JsonProvider.provider();
 		JsonObject jsonGame = provider.createObjectBuilder()
 				.add("action", "add")
 				.add("state", mapToJson(game.getState()))
 				.build();
-		try (JsonWriter jsonWriter = provider.createWriter(writer)) {
-		      jsonWriter.write(jsonGame);
-		}
+		System.out.println(jsonGame.toString());
+		return jsonGame.toString();
 	}
 	
 	private JsonValue mapToJson(Map<String, String> map) {
@@ -53,5 +51,6 @@ class MessageEncoder<T extends Game> implements Encoder.TextStream<T> {
 		}
 		return jsonBuilder.build();
 	}
+
 
 }

@@ -1,6 +1,7 @@
 package de.tu_berlin.pjki_server.game_engine;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -25,12 +26,11 @@ public abstract class Game implements Subject {
 	public Game() {
 		state = new HashMap<>();
 		state.put("maxPlayerNumber", "2");
-		state.put("activePlayers", "0");
 		state.put("currentPlayer", "0");
 		state.put("draw", Boolean.toString(false));
 		state.put("winner", null);
 		observerList = new ArrayList<Observer>();
-		playerList = new ArrayList<UUID>();
+		playerList = Collections.synchronizedList(new ArrayList<UUID>());
 	}
 		
 	/****************************************************************************
@@ -47,14 +47,12 @@ public abstract class Game implements Subject {
 	public void unregisterObserver(Observer o) throws Exception {
 		if (!observerList.remove(o)) {
 			throw new Exception("Observer not in ObserverList");
-		}
-		
+		} 		
 	}
 
 	@Override
 	public void notifyObservers() {
-		for (Iterator<Observer> it = observerList.iterator(); it.hasNext();){
-			Observer o = it.next();
+		for (Observer o: observerList){
 			o.update(this);
 		}
 
@@ -96,9 +94,8 @@ public abstract class Game implements Subject {
 	public abstract Game getNewInstance();
 
 	public boolean isFull() {
-		int activePlayers =  Integer.parseInt(state.get("activePlayers"));
 		int maxPlayers = Integer.parseInt(state.get("maxPlayerNumber"));
-		return (activePlayers >= maxPlayers);
+		return (playerList.size() >= maxPlayers);
 	}
 	
 	public List<UUID> getPlayerList() {
@@ -107,5 +104,13 @@ public abstract class Game implements Subject {
 	
 	public void addPlayer(UUID playerID) {
 		playerList.add(playerID);
+		if (isFull()) {
+			notifyObservers();
+		}
+	}
+	
+	public UUID getCurrentPlayer() {
+		int index = Integer.parseInt(getValue("currentPlayer"));
+		return playerList.get(index);
 	}
 }
