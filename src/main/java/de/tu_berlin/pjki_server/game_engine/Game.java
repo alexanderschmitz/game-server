@@ -16,7 +16,8 @@ public abstract class Game implements Subject {
 	private Map<String, String> state;
 	private ArrayList<Observer> observerList;
 	public final UUID ID = UUID.randomUUID(); 
-	private List<UUID> playerList;
+	private List<UUID> activePlayerList;
+	private List<UUID> registeredPlayerList;
 	
 	/**
 	 * Constructor for Game.
@@ -30,7 +31,8 @@ public abstract class Game implements Subject {
 		state.put("draw", Boolean.toString(false));
 		state.put("winner", null);
 		observerList = new ArrayList<Observer>();
-		playerList = Collections.synchronizedList(new ArrayList<UUID>());
+		activePlayerList = Collections.synchronizedList(new ArrayList<UUID>());
+		registeredPlayerList = Collections.synchronizedList(new ArrayList<UUID>());
 	}
 		
 	/****************************************************************************
@@ -87,30 +89,44 @@ public abstract class Game implements Subject {
 		}
 	}
 	
-	/****************************************************************************
-	*	general 
-	****************************************************************************/
-
-	public abstract Game getNewInstance();
-
 	public boolean isFull() {
 		int maxPlayers = Integer.parseInt(state.get("maxPlayerNumber"));
-		return (playerList.size() >= maxPlayers);
+		return (activePlayerList.size() >= maxPlayers);
 	}
 	
 	public List<UUID> getPlayerList() {
-		return playerList;
+		return activePlayerList;
 	}
 	
-	public void addPlayer(UUID playerID) {
-		playerList.add(playerID);
+	public void addActivePlayer(UUID playerID) {
+		activePlayerList.add(playerID);
 		if (isFull()) {
 			notifyObservers();
 		}
 	}
 	
+	public void removeActivePlayer(UUID playerID) {
+		activePlayerList.remove(playerID);
+	}
+	
 	public UUID getCurrentPlayer() {
 		int index = Integer.parseInt(getValue("currentPlayer"));
-		return playerList.get(index);
+		return activePlayerList.get(index);
 	}
+		
+	/****************************************************************************
+	*	general 
+	****************************************************************************/
+
+	public abstract Game getNewInstance();
+	
+	public void registerPlayer(UUID playerID) {
+		registeredPlayerList.add(playerID);
+	}
+	
+	public void unregisterPlayer(UUID playerID) {
+		registeredPlayerList.remove(playerID);
+	}
+
+	
 }
