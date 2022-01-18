@@ -14,7 +14,7 @@ import javax.websocket.server.ServerEndpoint;
 
 import com.google.gson.JsonObject;
 
-import de.tu_berlin.pjki_server.game_engine.Game;
+import de.tu_berlin.pjki_server.game_engine.AbstractGame;
 import de.tu_berlin.pjki_server.game_engine.Observer;
 
 @ServerEndpoint(value="/database")
@@ -70,7 +70,7 @@ private Logger logger = Logger.getLogger(this.getClass().getName());
 	}
 
 	@Override
-	public void update(Game game) {
+	public void update(AbstractGame game) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -1,20 +1,12 @@
 package de.tu_berlin.pjki_server.server_interface;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
 import java.util.logging.Logger;
 
 import javax.inject.Singleton;
 import javax.websocket.CloseReason;
-import javax.websocket.CloseReason.CloseCodes;
-import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -24,56 +16,92 @@ import javax.websocket.server.ServerEndpoint;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
-import de.tu_berlin.pjki_server.TicTacToeExample;
-import de.tu_berlin.pjki_server.game_engine.Game;
+import de.tu_berlin.pjki_server.game_engine.AbstractGame;
+import de.tu_berlin.pjki_server.game_engine.Manager;
 import de.tu_berlin.pjki_server.game_engine.Observer;
+import de.tu_berlin.pjki_server.game_engine.Player;
+import de.tu_berlin.pjki_server.server_interface.packets.AbstractPacket;
+import de.tu_berlin.pjki_server.server_interface.packets.AbstractPacket.Type;
+import de.tu_berlin.pjki_server.server_interface.packets.Packet_0_Login;
+import de.tu_berlin.pjki_server.server_interface.packets.Packet_3_JoinGame;
 
 @ServerEndpoint(value="/game")
 @Singleton
 public class GameServerEndpoint implements Observer {
 	
-	static Set<Game> lobby = Collections.synchronizedSet(new HashSet<Game>());
-	static Set<Session> sessions = Collections.synchronizedSet(new HashSet<Session>());
+	
 	private Logger logger = Logger.getLogger(this.getClass().getName());
-	static Map<UUID, Session> playerMap = Collections.synchronizedMap(new HashMap<UUID, Session>()); //Map from player UUID to a Session. This way players can quit the session but rejoin his game if he sends his UUID in the request
+	private static Manager manager = Manager.getManager();
+	
+	@OnMessage
+	public String onMessage(String message, Session session) {
+		
+		JsonObject jsonObject; 
+		try {
+			jsonObject = JsonParser.parseString(message).getAsJsonObject();
+		} catch (Exception e) {
+			return e.getLocalizedMessage();
+		}
+		logger.info(jsonObject.getAsString());
+		Type packetType = AbstractPacket.getPacketType(jsonObject.get("type").getAsString());
+		Gson gson = new Gson();
+		switch (packetType) {
+		case INVALID:
+			return "invalid packet id";
+		case LOGIN:
+			return doLogin(session, message);			
+		case GETGAMES:
+			return gson.toJson(manager.getLobby());
+		case CREATEGAME:
+			if (manager.getPlayerBySession(session) == null) {
+				return "Please login (packetID = 0) before creating a game";
+			}
+			String gameName = "TicTacToeExample";
+			AbstractGame newGame;
+			try {
+				newGame = manager.addGameToLobby(gameName);
+				return gson.toJson(newGame);
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				// TODO Auto-generated catch block
+				logger.warning(e.getMessage());
+			}
+			
+			
+		case JOIN:
+			Player player = manager.getPlayerBySession(session);
+			if (player == null) {
+				return "Please login (packetID = 0) before creating a game";
+			}
+			Packet_3_JoinGame parsedPacket_3 = gson.fromJson(message, Packet_3_JoinGame.class);
+			UUID gameID = UUID.fromString(parsedPacket_3.getGameID());
+			manager.getGameByID(gameID).addActivePlayer();
+			
+			
+		case MOVE:
+			
+		default:
+			break;
+		
+		}
+		
+		return "not implemented";
+		
+	}
 	
 	@OnOpen
 	public void onOpen(Session session) {
 		logger.info("Connected. Session ID: " + session.getId());
-		sessions.add(session);
-		
-		//rejoining
-		//NOTE maybe rejoining has to be handled in @OnMessage and not on first connection
-//		for (Game game: lobby) {
-//			if (game.getPlayerList().contains(UUIDfromJSON)) {
-//				playerMap.put(UUIDfromJSON, session);
-//				logger.info(String.format("Player %s rejoined game %s.", UUIDfromJSON, game.ID));
-//			}
-//		}
-//		
-		// PROTOTYPING:
-		joinGame(UUID.randomUUID(), session);
-		
+		manager.getSessions().add(session);
 	}
 
 	@OnClose
 	public void onClose(Session session, CloseReason closeReason) {
 		logger.info(String.format("Session %s closed because of %s", session.getId(), closeReason));
-		removeEntriesFromMap(session);
-		sessions.remove(session);
-	}
-	
-	@OnMessage
-	public String onMessage(String message, Session session) {
-		Message parsedMessage = new Gson().fromJson(message, Message.class);
-		logger.info("Parsed message: " + parsedMessage.header.playerID);
-		UUID playerID = UUID.fromString(parsedMessage.header.playerID);
-		UUID gameID = UUID.fromString(parsedMessage.game.id);
-		String move = parsedMessage.game.move;
-		
-		
-		return "not implemented";
+		manager.getPlayerBySession(session).setSession(null);
+		manager.getSessions().remove(session);
 	}
 	
 	@OnError
@@ -85,24 +113,63 @@ public class GameServerEndpoint implements Observer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 	}
 	
 	@Override
-	public void update(Game updatedGame) {
-		for (UUID playerID: updatedGame.getPlayerList()) {
-			logger.info("Player to update: " + playerID.toString());
-			Session session = playerMap.get(playerID);
+	public void update(AbstractGame updatedGame) {
+//		for (UUID playerID: updatedGame.getPlayerList()) {
+//			logger.info("Player to update: " + playerID.toString());
+//			Session session = manager.getPlayerByID(playerID).getSession();
+//			try {
+//				Gson gson = new Gson();
+//				JsonObject answer = new JsonObject();
+//				answer = addHeader(answer, playerID);
+//				answer = addBody(answer, updatedGame, playerID);
+//				logger.info("Server answer: " + gson.toJson(answer));
+//				session.getBasicRemote().sendText(gson.toJson(answer));
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
+	}
+	
+	private String doLogin(Session session, String message) {
+		Gson gson = new Gson();
+		Packet_0_Login parsedPacket_0 = gson.fromJson(message, Packet_0_Login.class);
+		if (!isUserNameValid(parsedPacket_0.getUsername())) return "user name must contain between 3 and 20 letters";
+		Player player = manager.getPlayerByUsername(parsedPacket_0.getUsername());
+		if (player == null) { 
+			//this username is still free
+			logger.info("new user %s logs in".formatted(parsedPacket_0.getUsername()));
+			player = new Player(parsedPacket_0.getUsername(), session, UUID.randomUUID());
+			manager.getPlayers().add(player);
+			return playerToJson(player);
+		} else if (parsedPacket_0.getPlayerID() != null) {
+			//if a playerID is send
 			try {
-				Gson gson = new Gson();
-				JsonObject answer = new JsonObject();
-				answer = addHeader(answer, playerID);
-				answer = addBody(answer, updatedGame, playerID);
-				logger.info("Server answer: " + gson.toJson(answer));
-				session.getBasicRemote().sendText(gson.toJson(answer));
-			} catch (IOException e) {
-				e.printStackTrace();
+				//check if it is a valid id
+				if (!player.getPlayerID().equals(UUID.fromString(parsedPacket_0.getPlayerID()))) {
+					return "Username already taken OR username and player id don't match";
+				} else {
+				//existing user logs in
+				player.setSession(session);
+				return playerToJson(player);
+				}
+			} catch (IllegalArgumentException e) {
+				return e.getLocalizedMessage();
 			}
+			
+		} 
+		return "please provide your playerID if you are already logged in";
+	}
+	
+	private boolean isUserNameValid(String username) {
+		if (username == null) {
+			return false;
+		} else if (username.length() < 3 || username.length() > 20) {
+			return false;
+		} else {
+			return true;
 		}
 	}
 		
@@ -110,68 +177,34 @@ public class GameServerEndpoint implements Observer {
 	*	utility
 	****************************************************************************/
 	
-	private void joinGame(UUID playerID, Session session) {
-		Game gameToJoin = null;
-		for (Game game: lobby) {
-			if (!game.isFull()) {
-				gameToJoin = game;
-			}
-		}
-		if (gameToJoin == null) {
-			gameToJoin = new TicTacToeExample();
-			logger.info("Created new Game: " + gameToJoin.ID.toString());
-			lobby.add(gameToJoin);
-			gameToJoin.registerObserver(this);
-		}
-		playerMap.put(playerID, session);
-		gameToJoin.addActivePlayer(playerID);
-		
-		int fullGames = lobby.stream().map(x -> (x.isFull() ? 1 : 0)).reduce(0, Integer::sum);
-		logger.info(String.format("Of %s games in the Lobby, there are %s full games ", lobby.size(), fullGames));	
-	}
-	
-	private JsonObject addHeader(JsonObject answer, UUID playerID) {
-		JsonObject header = new JsonObject();
-		header.addProperty("playerID", playerID.toString());
-		answer.add("header", header);
-		return answer;
-	}
-	
-	private JsonObject addBody(JsonObject answer, Game game, UUID playerID) {
-		JsonObject body = new JsonObject();
-		boolean yourTurn = false;
-		if (playerID == game.getCurrentPlayer()) {
-			yourTurn = true;
-		}
-		body.addProperty("id", game.ID.toString());
-		body.addProperty("yourTurn", yourTurn);
-		body.add("state", stateToJsonObject(game.getState()));
-		answer.add("game", body);
-		return answer;
-	}
-	
-	private JsonObject stateToJsonObject(Map<String, String> state) {
-		JsonObject jsonMap = new JsonObject();
-		for (Entry<String, String> entry: state.entrySet()) {
-			jsonMap.addProperty(entry.getKey(), entry.getValue());
-		}
-		return jsonMap;
-	}
-	
-	private void removeEntriesFromMap(Session session) {
-		Set<UUID> keys = new HashSet<>();
-	    for (Entry<UUID, Session> entry : playerMap.entrySet()) {
-	        if (entry.getValue().equals(session)) {
-	            keys.add(entry.getKey());
-	        }
-	    }
-	    for (UUID key: keys) {
-	    	playerMap.remove(key);
-	    }
-	}
-	
-//	private void parseMessage(String message) {
-//		Json json = new Gson().toJson(message);
+//	private void joinGame(UUID playerID, Session session) {
+//		AbstractGame gameToJoin = null;
+//		for (AbstractGame game: manager.getLobby()) {
+//			if (!game.isFull()) {
+//				gameToJoin = game;
+//			}
+//		}
+//		if (gameToJoin == null) {
+//			gameToJoin = new TicTacToeExample();
+//			logger.info("Created new Game: " + gameToJoin.ID.toString());
+//			manager.getLobby().add(gameToJoin);
+//			gameToJoin.registerObserver(this);
+//		}
+//		playerMap.put(playerID, session);
+//		gameToJoin.addActivePlayer(playerID);
+//		
+//		int fullGames = lobby.stream().map(x -> (x.isFull() ? 1 : 0)).reduce(0, Integer::sum);
+//		logger.info(String.format("Of %s games in the Lobby, there are %s full games ", manager.getLobby().size(), fullGames));	
 //	}
+	
+	private String playerToJson(Player player) {
+		JsonObject jsonObject = new JsonObject();
+		jsonObject.addProperty("username", player.getUserName());
+		jsonObject.addProperty("playerID", player.getPlayerID().toString());
+		if (!(player.getGameID() == null)) {
+			jsonObject.addProperty("gameID", player.getGameID().toString());
+		}
+		return new Gson().toJson(jsonObject);
+	}
 	
 }

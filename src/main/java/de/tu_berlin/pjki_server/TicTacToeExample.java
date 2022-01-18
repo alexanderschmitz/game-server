@@ -3,10 +3,10 @@ package de.tu_berlin.pjki_server;
 
 import com.google.gson.Gson;
 
-import de.tu_berlin.pjki_server.game_engine.Game;
+import de.tu_berlin.pjki_server.game_engine.AbstractGame;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 
-public class TicTacToeExample extends Game {
+public class TicTacToeExample extends AbstractGame {
 
 	static int winComb[][] = {{0,1,2},{3,4,5},{6,7,8},{0,3,6},{1,4,7},{2,5,8},{0,4,8},{2,4,6}};
 	public static int[] state = {0,0,0,0,0,0,0,0,0}; //0 if empty, 1 for player 1, 2 for player 2
@@ -18,7 +18,7 @@ public class TicTacToeExample extends Game {
 	}
 	
 	
-	public Game getNewInstance() {
+	public AbstractGame getNewInstance() {
 		return new TicTacToeExample();
 	}
 

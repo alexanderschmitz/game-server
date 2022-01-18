@@ -11,7 +11,7 @@ import java.util.UUID;
 /**
  * 
  */
-public abstract class Game implements Subject {
+public abstract class AbstractGame implements Subject {
 
 	private Map<String, String> state;
 	private ArrayList<Observer> observerList;
@@ -24,7 +24,7 @@ public abstract class Game implements Subject {
 	 * Creates the state attribute. The state stores all critical information about a game in a Map.
 	 * Standard entries are maxPlayerNumber, currentPlayer, draw, winner. (All Strings)	 * 
 	 */
-	public Game() {
+	public AbstractGame() {
 		state = new HashMap<>();
 		state.put("maxPlayerNumber", "2");
 		state.put("currentPlayer", "0");
@@ -118,7 +118,7 @@ public abstract class Game implements Subject {
 	*	general 
 	****************************************************************************/
 
-	public abstract Game getNewInstance();
+	public abstract AbstractGame getNewInstance();
 	
 	public void registerPlayer(UUID playerID) {
 		registeredPlayerList.add(playerID);

@@ -16,7 +16,7 @@ import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 
 public class GameTest {
 	
-	Game test;
+	AbstractGame test;
 	
 	@Before
 	public void initialiseTestVariables() {
@@ -88,7 +88,7 @@ public class GameTest {
 	}
 	
 	
-	private class SampleGame extends Game{
+	private class SampleGame extends AbstractGame{
 
 		@Override
 		public void setup(String[] args) {
@@ -104,7 +104,7 @@ public class GameTest {
 		}
 
 		@Override
-		public Game getNewInstance() {
+		public AbstractGame getNewInstance() {
 			return null;
 		}	
 		
@@ -115,7 +115,7 @@ public class GameTest {
 		private Map<String, String> state;
 		
 		@Override
-		public void update(Game game) {
+		public void update(AbstractGame game) {
 			this.state = game.getState();
 			
 		}

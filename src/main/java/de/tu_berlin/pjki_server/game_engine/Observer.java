@@ -4,6 +4,6 @@ import java.util.Map;
 
 public interface Observer {
 
-	public void update(Game game);
+	public void update(AbstractGame game);
 
 }
