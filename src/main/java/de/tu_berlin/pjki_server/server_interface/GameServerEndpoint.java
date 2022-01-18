@@ -22,10 +22,12 @@ import de.tu_berlin.pjki_server.game_engine.AbstractGame;
 import de.tu_berlin.pjki_server.game_engine.Manager;
 import de.tu_berlin.pjki_server.game_engine.Observer;
 import de.tu_berlin.pjki_server.game_engine.Player;
+import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 import de.tu_berlin.pjki_server.server_interface.packets.AbstractPacket;
 import de.tu_berlin.pjki_server.server_interface.packets.AbstractPacket.Type;
 import de.tu_berlin.pjki_server.server_interface.packets.Packet_0_Login;
 import de.tu_berlin.pjki_server.server_interface.packets.Packet_3_JoinGame;
+import de.tu_berlin.pjki_server.server_interface.packets.Packet_4_Move;
 
 @ServerEndpoint(value="/game")
 @Singleton
@@ -44,7 +46,7 @@ public class GameServerEndpoint implements Observer {
 		} catch (Exception e) {
 			return e.getLocalizedMessage();
 		}
-		logger.info(jsonObject.getAsString());
+		logger.info(new Gson().toJson(jsonObject));
 		Type packetType = AbstractPacket.getPacketType(jsonObject.get("type").getAsString());
 		Gson gson = new Gson();
 		switch (packetType) {
@@ -65,23 +67,39 @@ public class GameServerEndpoint implements Observer {
 				return gson.toJson(newGame);
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				// TODO Auto-generated catch block
-				logger.warning(e.getMessage());
+				return e.getLocalizedMessage();
 			}
 			
 			
 		case JOIN:
 			Player player = manager.getPlayerBySession(session);
 			if (player == null) {
-				return "Please login (packetID = 0) before creating a game";
+				return "Please login (packetID = 0) before joining a game";
 			}
 			Packet_3_JoinGame parsedPacket_3 = gson.fromJson(message, Packet_3_JoinGame.class);
 			UUID gameID = UUID.fromString(parsedPacket_3.getGameID());
-			manager.getGameByID(gameID).addActivePlayer();
-			
-			
+			AbstractGame game = manager.getGameByID(gameID);
+			player.setGameID(gameID);
+			game.addActivePlayer(player.getPlayerID());
+			return gson.toJson(game);
 		case MOVE:
+			player = manager.getPlayerBySession(session);
+			if (player == null) {
+				return "Please login (packetID = 0) before joining a game";
+			}
+			Packet_4_Move parsedPacket_4 = gson.fromJson(message, Packet_4_Move.class);
+			gameID = UUID.fromString(parsedPacket_4.getGameID());
+			if (!player.getGameID().equals(gameID)) {
+				return "player id and game id don't match";
+			}
+			game = manager.getGameByID(gameID);
+			try {
+				game.move(new String[] {parsedPacket_4.getMove()});
+			} catch (IllegalMoveException e) {
+				return e.getLocalizedMessage();
+			}
 			
+			break;
 		default:
 			break;
 		
