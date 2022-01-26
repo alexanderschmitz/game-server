@@ -1,6 +1,7 @@
 package de.tu_berlin.pjki_server.server_interface;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -71,6 +72,12 @@ private Logger logger = Logger.getLogger(this.getClass().getName());
 
 	@Override
 	public void update(AbstractGame game) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void update(AbstractGame game, List<UUID> players) {
 		// TODO Auto-generated method stub
 		
 	}

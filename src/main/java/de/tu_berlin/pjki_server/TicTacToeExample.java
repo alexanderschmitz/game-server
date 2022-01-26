@@ -2,6 +2,8 @@ package de.tu_berlin.pjki_server;
 
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import de.tu_berlin.pjki_server.game_engine.AbstractGame;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
@@ -10,10 +12,10 @@ public class TicTacToeExample extends AbstractGame {
 
 	static int winComb[][] = {{0,1,2},{3,4,5},{6,7,8},{0,3,6},{1,4,7},{2,5,8},{0,4,8},{2,4,6}};
 	public static int[] state = {0,0,0,0,0,0,0,0,0}; //0 if empty, 1 for player 1, 2 for player 2
+	Gson g = new Gson();
 
 	public TicTacToeExample() {
 		super();
-		Gson g = new Gson();
 		setValue("state", g.toJson(state));
 	}
 	
@@ -31,7 +33,7 @@ public class TicTacToeExample extends AbstractGame {
 	}
 
 	@Override
-	public boolean isOver(String[] args) {
+	public boolean isOver() {
 		if (isDraw()) {
 			setValue("draw", Boolean.toString(true));
 			return true;
@@ -64,7 +66,21 @@ public class TicTacToeExample extends AbstractGame {
 		}
 		int currentPlayer = Integer.parseInt(getState().get("currentPlayer"));
 		state[move] = currentPlayer + 1;
+		setValue("state", g.toJson(state));
 		endTurn();
 	}
+
+
+	@Override
+	public String toJson() {
+		JsonObject jsonObject = new JsonObject();
+		Gson g = new Gson();
+		jsonObject.add("gameID", g.toJsonTree(super.ID));
+		jsonObject.add("state", g.toJsonTree(super.getState()));
+		
+		return g.toJson(jsonObject);
+	}
+	
+	
 
 }

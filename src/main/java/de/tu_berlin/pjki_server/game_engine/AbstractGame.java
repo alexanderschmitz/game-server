@@ -17,7 +17,6 @@ public abstract class AbstractGame implements Subject {
 	private ArrayList<Observer> observerList;
 	public final UUID ID = UUID.randomUUID(); 
 	private List<UUID> activePlayerList;
-	private List<UUID> registeredPlayerList;
 	
 	/**
 	 * Constructor for Game.
@@ -29,10 +28,9 @@ public abstract class AbstractGame implements Subject {
 		state.put("maxPlayerNumber", "2");
 		state.put("currentPlayer", "0");
 		state.put("draw", Boolean.toString(false));
-		state.put("winner", null);
+		state.put("winner", "");
 		observerList = new ArrayList<Observer>();
 		activePlayerList = Collections.synchronizedList(new ArrayList<UUID>());
-		registeredPlayerList = Collections.synchronizedList(new ArrayList<UUID>());
 	}
 		
 	/****************************************************************************
@@ -82,7 +80,7 @@ public abstract class AbstractGame implements Subject {
 	
 	public void endTurn() {
 		int currentPlayer = Integer.parseInt(state.get("currentPlayer"));
-		if (currentPlayer+1 >= Integer.parseInt(state.get("maxPlayerNumber"))) {
+		if (currentPlayer >= Integer.parseInt(state.get("maxPlayerNumber"))) {
 			setValue("currentPlayer", "0");
 		} else {
 			setValue("currentPlayer", Integer.toString(currentPlayer + 1));
@@ -119,14 +117,7 @@ public abstract class AbstractGame implements Subject {
 	****************************************************************************/
 
 	public abstract AbstractGame getNewInstance();
-	
-	public void registerPlayer(UUID playerID) {
-		registeredPlayerList.add(playerID);
-	}
-	
-	public void unregisterPlayer(UUID playerID) {
-		registeredPlayerList.remove(playerID);
-	}
 
+	public abstract String toJson();
 	
 }

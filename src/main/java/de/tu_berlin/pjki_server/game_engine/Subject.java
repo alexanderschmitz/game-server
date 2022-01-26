@@ -13,6 +13,6 @@ public interface Subject {
 	//game related functions
 	public void setup(String[] args);
 	public void move(String[] args) throws IllegalMoveException;	
-	public boolean isOver(String[] args);
+	public boolean isOver();
 
 }

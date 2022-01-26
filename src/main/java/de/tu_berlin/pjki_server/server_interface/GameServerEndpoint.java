@@ -2,6 +2,7 @@ package de.tu_berlin.pjki_server.server_interface;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -39,12 +40,12 @@ public class GameServerEndpoint implements Observer {
 	
 	@OnMessage
 	public String onMessage(String message, Session session) {
-		
+		logger.info("Raw received message: " + message);
 		JsonObject jsonObject; 
 		try {
 			jsonObject = JsonParser.parseString(message).getAsJsonObject();
 		} catch (Exception e) {
-			return e.getLocalizedMessage();
+			return e.getMessage();
 		}
 		logger.info(new Gson().toJson(jsonObject));
 		Type packetType = AbstractPacket.getPacketType(jsonObject.get("type").getAsString());
@@ -55,7 +56,7 @@ public class GameServerEndpoint implements Observer {
 		case LOGIN:
 			return doLogin(session, message);			
 		case GETGAMES:
-			return gson.toJson(manager.getLobby());
+			return manager.lobbyToJson();
 		case CREATEGAME:
 			if (manager.getPlayerBySession(session) == null) {
 				return "Please login (packetID = 0) before creating a game";
@@ -64,14 +65,15 @@ public class GameServerEndpoint implements Observer {
 			AbstractGame newGame;
 			try {
 				newGame = manager.addGameToLobby(gameName);
-				return gson.toJson(newGame);
+				newGame.registerObserver(this);
+				return newGame.toJson();
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				return e.getLocalizedMessage();
+				return e.getMessage();
 			}
 			
 			
-		case JOIN:
+		case JOIN: //3
 			Player player = manager.getPlayerBySession(session);
 			if (player == null) {
 				return "Please login (packetID = 0) before joining a game";
@@ -81,8 +83,8 @@ public class GameServerEndpoint implements Observer {
 			AbstractGame game = manager.getGameByID(gameID);
 			player.setGameID(gameID);
 			game.addActivePlayer(player.getPlayerID());
-			return gson.toJson(game);
-		case MOVE:
+			return game.toJson();
+		case MOVE: //4
 			player = manager.getPlayerBySession(session);
 			if (player == null) {
 				return "Please login (packetID = 0) before joining a game";
@@ -96,7 +98,7 @@ public class GameServerEndpoint implements Observer {
 			try {
 				game.move(new String[] {parsedPacket_4.getMove()});
 			} catch (IllegalMoveException e) {
-				return e.getLocalizedMessage();
+				return e.getMessage();
 			}
 			
 			break;
@@ -127,7 +129,7 @@ public class GameServerEndpoint implements Observer {
 		t.printStackTrace();
 		logger.warning("Server error: " + t.getMessage());
 		try {
-			session.getBasicRemote().sendText("ERROR");
+			session.getBasicRemote().sendText(t.getLocalizedMessage());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -135,20 +137,22 @@ public class GameServerEndpoint implements Observer {
 	
 	@Override
 	public void update(AbstractGame updatedGame) {
-//		for (UUID playerID: updatedGame.getPlayerList()) {
-//			logger.info("Player to update: " + playerID.toString());
-//			Session session = manager.getPlayerByID(playerID).getSession();
-//			try {
-//				Gson gson = new Gson();
-//				JsonObject answer = new JsonObject();
-//				answer = addHeader(answer, playerID);
-//				answer = addBody(answer, updatedGame, playerID);
-//				logger.info("Server answer: " + gson.toJson(answer));
-//				session.getBasicRemote().sendText(gson.toJson(answer));
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		}
+		update(updatedGame, updatedGame.getPlayerList());
+	}
+	
+	@Override
+	public void update(AbstractGame updatedGame, List<UUID> playerIDs) {
+		for (UUID playerID: playerIDs) {
+			if (updatedGame.getPlayerList().contains(playerID)) {
+				Session session = manager.getPlayerByID(playerID).getSession();
+				try {
+					session.getBasicRemote().sendText(updatedGame.toJson());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
 	}
 	
 	private String doLogin(Session session, String message) {
@@ -224,5 +228,7 @@ public class GameServerEndpoint implements Observer {
 		}
 		return new Gson().toJson(jsonObject);
 	}
+
+
 	
 }

@@ -4,7 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -99,12 +101,18 @@ public class GameTest {
 		}
 
 		@Override
-		public boolean isOver(String[] args) {
+		public boolean isOver() {
 			return false;
 		}
 
 		@Override
 		public AbstractGame getNewInstance() {
+			return null;
+		}
+
+		@Override
+		public String toJson() {
+			// TODO Auto-generated method stub
 			return null;
 		}	
 		
@@ -122,6 +130,12 @@ public class GameTest {
 		
 		protected Map<String, String> getState(){
 			return state;
+		}
+
+		@Override
+		public void update(AbstractGame game, List<UUID> players) {
+			// TODO Auto-generated method stub
+			
 		}
 		
 	}
