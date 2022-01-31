@@ -2,35 +2,35 @@ package de.tu_berlin.pjki_server.game_engine;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
+
+import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 
 /**
  * 
  */
 public abstract class AbstractGame implements Subject {
 
-	private Map<String, String> state;
-	private ArrayList<Observer> observerList;
-	public final UUID ID = UUID.randomUUID(); 
-	private List<UUID> activePlayerList;
+	/** The List with the observers subscribed to this game*/
+	private List<Observer> observerList;
 	
-	/**
-	 * Constructor for Game.
-	 * Creates the state attribute. The state stores all critical information about a game in a Map.
-	 * Standard entries are maxPlayerNumber, currentPlayer, draw, winner. (All Strings)	 * 
-	 */
+	/** The list of the current players*/
+	private List<Player> activePlayerList;
+	
+	/** The unique id of the game*/
+	private final UUID ID = UUID.randomUUID(); 
+	
+	private int maxPlayerNumber;
+	private Player currentPlayer;
+	private Player winner;
+	public State state;
+	
 	public AbstractGame() {
-		state = new HashMap<>();
-		state.put("maxPlayerNumber", "2");
-		state.put("currentPlayer", "0");
-		state.put("draw", Boolean.toString(false));
-		state.put("winner", "");
+		maxPlayerNumber = 2;
+		winner = null;
 		observerList = new ArrayList<Observer>();
-		activePlayerList = Collections.synchronizedList(new ArrayList<UUID>());
+		activePlayerList = Collections.synchronizedList(new ArrayList<Player>());
 	}
 		
 	/****************************************************************************
@@ -62,62 +62,102 @@ public abstract class AbstractGame implements Subject {
 	*	game logic related methods
 	****************************************************************************/
 
-	public Map<String, String> getState() {
-		return state;
-	}
 
-	public void setState(Map<String, String> state) {
-		this.state = state;
-	}
-
-	public void setValue(String key, String value) {
-		state.put(key, value);
-	}
-	
-	public String getValue(String key) {
-		return state.get(key);
-	}
-	
+	/**
+	 * Ends the turn of current player and changes "currentPlayer" to the next player.
+	 * For custom behaviour, override this method.
+	 */
 	public void endTurn() {
-		int currentPlayer = Integer.parseInt(state.get("currentPlayer"));
-		if (currentPlayer >= Integer.parseInt(state.get("maxPlayerNumber"))) {
-			setValue("currentPlayer", "0");
+		int indexOfCurrentPlayer = activePlayerList.indexOf(currentPlayer);
+		if (indexOfCurrentPlayer >= maxPlayerNumber - 1) {
+			currentPlayer = activePlayerList.get(0);
 		} else {
-			setValue("currentPlayer", Integer.toString(currentPlayer + 1));
+			currentPlayer = activePlayerList.get(indexOfCurrentPlayer + 1);
 		}
 	}
 	
+	/**
+	 * Checks if the number of active players is equal to the maximum number of players.
+	 * @return true if equal, false otherwise
+	 */
 	public boolean isFull() {
-		int maxPlayers = Integer.parseInt(state.get("maxPlayerNumber"));
-		return (activePlayerList.size() >= maxPlayers);
+		return (activePlayerList.size() >= maxPlayerNumber);
 	}
-	
-	public List<UUID> getPlayerList() {
-		return activePlayerList;
-	}
-	
-	public void addActivePlayer(UUID playerID) {
-		activePlayerList.add(playerID);
+
+	/**
+	 * Adds a player to the active player list.
+	 * Notifies observers if the list is full after adding the player.
+	 * @param Player, the player to be added
+	 * @throws Exception if the list is already full 
+	 */
+	public void addActivePlayer(Player player) throws Exception {
+		if (isFull()) {
+			throw new Exception("The maximum number of players has been reached.");
+		} else if (activePlayerList.size() == 0) {
+			currentPlayer = player;
+		}
+		activePlayerList.add(player);
 		if (isFull()) {
 			notifyObservers();
 		}
 	}
 	
-	public void removeActivePlayer(UUID playerID) {
-		activePlayerList.remove(playerID);
+	public void removeActivePlayer(Player player) {
+		activePlayerList.remove(player);
 	}
 	
-	public UUID getCurrentPlayer() {
-		int index = Integer.parseInt(getValue("currentPlayer"));
-		return activePlayerList.get(index);
-	}
-		
+	public abstract void move(String move) throws IllegalMoveException;	
+	
+	public abstract boolean isOver();
+	
+	public abstract boolean isDraw();
+	
 	/****************************************************************************
 	*	general 
 	****************************************************************************/
 
 	public abstract AbstractGame getNewInstance();
 
-	public abstract String toJson();
+	//public abstract String toJson();
+	
+	// GETTERS AND SETTERS
+
+	public List<Player> getActivePlayerList() {
+		return activePlayerList;
+	}
+
+	public void setActivePlayerList(List<Player> activePlayerList) {
+		this.activePlayerList = activePlayerList;
+	}
+
+	public int getMaxPlayerNumber() {
+		return maxPlayerNumber;
+	}
+
+	public void setMaxPlayerNumber(int maxPlayerNumber) {
+		this.maxPlayerNumber = maxPlayerNumber;
+	}
+
+	public Player getCurrentPlayer() {
+		return currentPlayer;
+	}
+
+	public void setCurrentPlayer(Player currentPlayer) {
+		this.currentPlayer = currentPlayer;
+	}
+
+	public Player getWinner() {
+		return winner;
+	}
+
+	public void setWinner(Player winner) {
+		this.winner = winner;
+	}
+
+	public UUID getID() {
+		return ID;
+	}
+	
+	
 	
 }

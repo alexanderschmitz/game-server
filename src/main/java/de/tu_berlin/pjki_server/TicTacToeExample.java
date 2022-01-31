@@ -1,22 +1,30 @@
 package de.tu_berlin.pjki_server;
 
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Logger;
 
+import com.google.gson.Gson;
 import de.tu_berlin.pjki_server.game_engine.AbstractGame;
+import de.tu_berlin.pjki_server.game_engine.MCTS;
+import de.tu_berlin.pjki_server.game_engine.State;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 
-public class TicTacToeExample extends AbstractGame {
+public class TicTacToeExample extends AbstractGame implements MCTS {
+	
+	Logger log = Logger.getLogger(this.getClass().getName());
 
 	static int winComb[][] = {{0,1,2},{3,4,5},{6,7,8},{0,3,6},{1,4,7},{2,5,8},{0,4,8},{2,4,6}};
-	public static int[] state = {0,0,0,0,0,0,0,0,0}; //0 if empty, 1 for player 1, 2 for player 2
 	Gson g = new Gson();
 
 	public TicTacToeExample() {
 		super();
-		setValue("state", g.toJson(state));
+		state = new State(new HashMap<>());
+		state.put("board", new int[]{0,0,0,0,0,0,0,0,0});
+		state.put("moveNumber", 1);
 	}
 	
 	
@@ -26,31 +34,26 @@ public class TicTacToeExample extends AbstractGame {
 
 
 	@Override
-	public void setup(String[] args) {
-		
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public boolean isOver() {
 		if (isDraw()) {
-			setValue("draw", Boolean.toString(true));
 			return true;
 		}
+		int[] board = (int[]) state.get("board");
 		for(int[] combination: winComb){
-			if (state[combination[0]] == state[combination[1]] 
-				&& state[combination[1]] == state[combination[2]] 
-				&& state[combination[1]] != 0){
-					setValue("winner", Integer.toString(combination[0]));
+			if (board[combination[0]] == board[combination[1]] 
+				&& board[combination[1]] == board[combination[2]] 
+				&& board[combination[1]] != 0){
+					setWinner(getActivePlayerList().get(board[combination[0]]-1));
 					return true;
 				}
 		}
 		return false;
 	}
 	
-	private boolean isDraw() {
-		for (int cell: state) {
+	@Override
+	public boolean isDraw() {
+		int[] board = (int[]) state.get("board");
+		for (int cell: board) {
 			if (cell == 0) {
 				return false;
 			}
@@ -58,29 +61,52 @@ public class TicTacToeExample extends AbstractGame {
 		return true;
 	}
 
-	@Override
-	public void move(String[] args) throws IllegalMoveException {
-		int move = Integer.parseInt(args[0]);
-		if (state[move] != 0) {
+	public void move(String move) throws IllegalMoveException {
+		int cell = Integer.parseInt(move);
+		int[] board = (int[]) state.get("board");
+		if (board[cell] != 0) {
 			throw new IllegalMoveException();
 		}
-		int currentPlayer = Integer.parseInt(getState().get("currentPlayer"));
-		state[move] = currentPlayer + 1;
-		setValue("state", g.toJson(state));
-		endTurn();
+		int currentPlayer = getActivePlayerList().indexOf(getCurrentPlayer());
+		board[cell] = currentPlayer + 1;
+		state.put("board", board);
+		state.put("moveNumber", (int) state.get("moveNumber")+1);
+		log.info("%s, id: %s, board:  %s on move %d".formatted(this.getClass().getCanonicalName(), this.getID().toString(), this.toString(), state.get("moveNumber")));
+		if (!isOver()) {
+			notifyObservers();
+			endTurn();
+		}	
 	}
+
+
+//	@Override
+//	public String toJson() {
+//		JsonObject jsonObject = new JsonObject();
+//		Gson g = new Gson();
+//		jsonObject.add("gameID", g.toJsonTree(super.ID));
+//		jsonObject.add("state", g.toJsonTree(super.getState()));
+//		
+//		return g.toJson(jsonObject);
+//	}
 
 
 	@Override
-	public String toJson() {
-		JsonObject jsonObject = new JsonObject();
-		Gson g = new Gson();
-		jsonObject.add("gameID", g.toJsonTree(super.ID));
-		jsonObject.add("state", g.toJsonTree(super.getState()));
-		
-		return g.toJson(jsonObject);
+	public List<String> listMoves() {
+		List<String> legalMoves = new ArrayList<>();
+		int[] board = (int[]) state.get("board");
+		for (int i = 0; i < 9; i++) {
+			if (board[i] == 0) {
+				legalMoves.add(String.valueOf(i));
+			}
+		}
+		return legalMoves;
 	}
 	
-	
+	@Override
+	public String toString() {
+		int[] board = (int[]) state.get("board");
+		return "TicTacToe - %s".formatted(Arrays.toString(board));
+	}
+
 
 }

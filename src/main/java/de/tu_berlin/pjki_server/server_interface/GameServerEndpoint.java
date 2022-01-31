@@ -30,6 +30,10 @@ import de.tu_berlin.pjki_server.server_interface.packets.Packet_0_Login;
 import de.tu_berlin.pjki_server.server_interface.packets.Packet_3_JoinGame;
 import de.tu_berlin.pjki_server.server_interface.packets.Packet_4_Move;
 
+/**
+ * The Endpoint class for the Websocket Interface to the game logic.
+ *
+ */
 @ServerEndpoint(value="/game")
 @Singleton
 public class GameServerEndpoint implements Observer {
@@ -66,7 +70,7 @@ public class GameServerEndpoint implements Observer {
 			try {
 				newGame = manager.addGameToLobby(gameName);
 				newGame.registerObserver(this);
-				return newGame.toJson();
+				return new Gson().toJson(newGame);
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
 				return e.getMessage();
@@ -82,8 +86,12 @@ public class GameServerEndpoint implements Observer {
 			UUID gameID = UUID.fromString(parsedPacket_3.getGameID());
 			AbstractGame game = manager.getGameByID(gameID);
 			player.setGameID(gameID);
-			game.addActivePlayer(player.getPlayerID());
-			return game.toJson();
+			try {
+				game.addActivePlayer(player);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			return new Gson().toJson(game);
 		case MOVE: //4
 			player = manager.getPlayerBySession(session);
 			if (player == null) {
@@ -96,7 +104,7 @@ public class GameServerEndpoint implements Observer {
 			}
 			game = manager.getGameByID(gameID);
 			try {
-				game.move(new String[] {parsedPacket_4.getMove()});
+				game.move(parsedPacket_4.getMove());
 			} catch (IllegalMoveException e) {
 				return e.getMessage();
 			}
@@ -137,16 +145,16 @@ public class GameServerEndpoint implements Observer {
 	
 	@Override
 	public void update(AbstractGame updatedGame) {
-		update(updatedGame, updatedGame.getPlayerList());
+		update(updatedGame, updatedGame.getActivePlayerList());
 	}
 	
 	@Override
-	public void update(AbstractGame updatedGame, List<UUID> playerIDs) {
-		for (UUID playerID: playerIDs) {
-			if (updatedGame.getPlayerList().contains(playerID)) {
-				Session session = manager.getPlayerByID(playerID).getSession();
+	public void update(AbstractGame game, List<Player> players) {
+		for (Player player: players) {
+			if (game.getActivePlayerList().contains(player)) {
+				Session session = player.getSession();
 				try {
-					session.getBasicRemote().sendText(updatedGame.toJson());
+					session.getBasicRemote().sendText(new Gson().toJson(game));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -229,6 +237,5 @@ public class GameServerEndpoint implements Observer {
 		return new Gson().toJson(jsonObject);
 	}
 
-
-	
+		
 }

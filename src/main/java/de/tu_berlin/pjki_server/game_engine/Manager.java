@@ -99,7 +99,7 @@ public final class Manager {
 	public AbstractGame getGameByID(UUID gameID) {
 		if (gameID == null) return null;
 		for (AbstractGame game: lobby) {
-			if (game.ID.equals(gameID)) {
+			if (game.getID().equals(gameID)) {
 				return game;
 			}
 		}
@@ -107,12 +107,12 @@ public final class Manager {
 	}
 
 	public String lobbyToJson() {
-		List<String> games = new ArrayList<>();
-		Gson g = new Gson();
-		for (AbstractGame game: lobby) {
-			games.add(game.toJson());
-		}
-		return new Gson().toJson(games);
+//		List<String> games = new ArrayList<>();
+//		Gson g = new Gson();
+//		for (AbstractGame game: lobby) {
+//			games.add(game.toJson());
+//		}
+		return new Gson().toJson(lobby);
 	}
 	
 }
