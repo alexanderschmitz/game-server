@@ -2,16 +2,17 @@ package de.tu_berlin.pjki_server;
 
 import org.junit.Test;
 
-import de.tu_berlin.pjki_server.game_engine.entities.Bot;
+import de.tu_berlin.pjki_server.game_engine.entities.MCTSBot;
+import de.tu_berlin.pjki_server.game_engine.entities.RandomBot;
 
-public class BotTest {
+public class RandomBotTest {
 
 	
 	@Test
 	public void testMCTSBot() {
 		TicTacToeExample tttExample = new TicTacToeExample();
-		Bot bot1 = new Bot("bot1");
-		Bot bot2 = new Bot("bot2");
+		RandomBot bot1 = new RandomBot("bot1");
+		RandomBot bot2 = new RandomBot("bot2");
 		tttExample.registerObserver(bot1);
 		tttExample.registerObserver(bot2);
 		try {

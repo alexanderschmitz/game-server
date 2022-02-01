@@ -99,10 +99,6 @@ public class GameTest {
 	private class SampleGame extends AbstractGame{
 
 		@Override
-		public void move(String move) throws IllegalMoveException {
-		}
-
-		@Override
 		public boolean isOver() {
 			return false;
 		}
@@ -115,6 +111,12 @@ public class GameTest {
 		@Override
 		public boolean isDraw() {
 			return false;
+		}
+
+		@Override
+		public void move(String move) throws IllegalMoveException {
+			// TODO Auto-generated method stub
+			
 		}
 
 		

@@ -28,26 +28,18 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 	protected Logger log = Logger.getLogger(this.getClass().getName());
 	
 	/** The List with the observers subscribed to this game*/
-	@Expose(serialize = false)
 	private List<Observer> observerList;
 	
 	/** The list of the current players*/
-	//TODO: serialize the playerList to a List of the player names
-	@Expose(serialize = false)
 	private List<AbstractPlayer> activePlayerList;
 	
 	/** The unique id of the game*/
-	@Expose(serialize = false)
 	private final UUID ID = UUID.randomUUID(); 
 	
-	@Expose(serialize = false)
 	private int maxPlayerNumber;
-	@Expose(serialize = false)
 	private AbstractPlayer currentPlayer;
-	@Expose(serialize = false)
 	private AbstractPlayer winner;
-	@Expose(serialize = false)
-	public State state;
+	private State state;
 	
 	public AbstractGame() {
 		maxPlayerNumber = 2;
@@ -146,11 +138,21 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 		activePlayerList.remove(player);
 	}
 	
-	public abstract void move(String move) throws IllegalMoveException;	
+	public abstract void move(String move) throws IllegalMoveException;
+	
+	public void executeMove(String move) throws IllegalMoveException{
+		move(move);
+		endTurn();
+		if (!isOver()) {
+			notifyAllObservers();
+		}
+	};	
 	
 	public abstract boolean isOver();
 	
 	public abstract boolean isDraw();
+	
+	
 	
 	/****************************************************************************
 	*	general 
@@ -213,6 +215,14 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 
 	public UUID getID() {
 		return ID;
+	}
+
+	public State getState() {
+		return state;
+	}
+
+	public void setState(State state) {
+		this.state = state;
 	}
 	
 	

@@ -8,9 +8,9 @@ import java.util.List;
 import com.google.gson.annotations.Expose;
 
 import de.tu_berlin.pjki_server.game_engine.AbstractGame;
-import de.tu_berlin.pjki_server.game_engine.MCTS;
 import de.tu_berlin.pjki_server.game_engine.State;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
+import de.tu_berlin.pjki_server.game_engine.mcts.MCTS;
 
 public class TicTacToeExample extends AbstractGame implements MCTS {
 	
@@ -20,9 +20,9 @@ public class TicTacToeExample extends AbstractGame implements MCTS {
 	
 	public TicTacToeExample() {
 		super();
-		state = new State(new HashMap<>());
-		state.put("board", new int[]{0,0,0,0,0,0,0,0,0});
-		state.put("ply", 1);
+		setState(new State(new HashMap<>()));
+		getState().put("board", new int[]{0,0,0,0,0,0,0,0,0});
+		getState().put("ply", 1);
 	}
 	
 	
@@ -33,7 +33,7 @@ public class TicTacToeExample extends AbstractGame implements MCTS {
 
 	@Override
 	public boolean isOver() {
-		int[] board = (int[]) state.get("board");
+		int[] board = (int[]) getState().get("board");
 		for(int[] combination: winComb){
 			if (board[combination[0]] == board[combination[1]] 
 				&& board[combination[1]] == board[combination[2]] 
@@ -52,7 +52,7 @@ public class TicTacToeExample extends AbstractGame implements MCTS {
 	
 	@Override
 	public boolean isDraw() {
-		int[] board = (int[]) state.get("board");
+		int[] board = (int[]) getState().get("board");
 		for (int cell: board) {
 			if (cell == 0) {
 				return false;
@@ -64,25 +64,20 @@ public class TicTacToeExample extends AbstractGame implements MCTS {
 
 	public void move(String move) throws IllegalMoveException {
 		int cell = Integer.parseInt(move);
-		int[] board = (int[]) state.get("board");
+		int[] board = (int[]) getState().get("board");
 		if (board[cell] != 0) {
 			throw new IllegalMoveException();
 		}
 		int currentPlayer = getActivePlayerList().indexOf(getCurrentPlayer());
 		board[cell] = currentPlayer + 1;
-		state.put("board", board);
-		state.put("moveNumber", (int) state.get("moveNumber")+1);
-		log.info("%s, board:  %s on move %d".formatted(this.getID().toString(), this.toString(), state.get("moveNumber")));
-		endTurn();
-		if (!isOver()) {
-			notifyAllObservers();
-		}	
+		getState().put("board", board);
+		getState().put("ply", (int) getState().get("ply")+1);
 	}
 
 	@Override
 	public List<String> listMoves() {
 		List<String> legalMoves = new ArrayList<>();
-		int[] board = (int[]) state.get("board");
+		int[] board = (int[]) getState().get("board");
 		for (int i = 0; i < 9; i++) {
 			if (board[i] == 0) {
 				legalMoves.add(String.valueOf(i));
@@ -93,7 +88,7 @@ public class TicTacToeExample extends AbstractGame implements MCTS {
 	
 	@Override
 	public String toString() {
-		int[] board = (int[]) state.get("board");
+		int[] board = (int[]) getState().get("board");
 		return "TicTacToe - %s".formatted(Arrays.toString(board));
 	}
 

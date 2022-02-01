@@ -2,22 +2,21 @@ package de.tu_berlin.pjki_server.game_engine.entities;
 
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.IconifyAction;
-
 import de.tu_berlin.pjki_server.game_engine.AbstractGame;
-import de.tu_berlin.pjki_server.game_engine.MCTS;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
+import de.tu_berlin.pjki_server.game_engine.mcts.MCTS;
 
-public class Bot extends AbstractPlayer{
+public class RandomBot extends AbstractPlayer{
 	
 	private Logger log = Logger.getLogger(this.getClass().getName());
 	
-	public Bot(String name) {
+	public RandomBot(String name) {
 		super(name);
 	}	
+	
+	
 	
 	private String calculateNextMove(AbstractGame game) {
 		if (!MCTS.class.isAssignableFrom(game.getClass()) ) {
@@ -36,10 +35,11 @@ public class Bot extends AbstractPlayer{
 			try {
 				String move = calculateNextMove(game);
 				log.info("%s - Move: %s".formatted(getPlayerName(), move));
-				game.move(move);				
+				game.executeMove(move);				
 			} catch (IllegalMoveException e) {
 				e.printStackTrace();
 			}
 		}
 	}
+	
 }

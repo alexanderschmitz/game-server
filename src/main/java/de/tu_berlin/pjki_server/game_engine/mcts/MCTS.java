@@ -1,4 +1,4 @@
-package de.tu_berlin.pjki_server.game_engine;
+package de.tu_berlin.pjki_server.game_engine.mcts;
 
 import java.util.List;
 import java.util.Set;
