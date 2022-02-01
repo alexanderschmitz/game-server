@@ -1,36 +1,59 @@
 package de.tu_berlin.pjki_server.game_engine;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Logger;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.annotations.Expose;
+
+import de.tu_berlin.pjki_server.game_engine.entities.AbstractPlayer;
+import de.tu_berlin.pjki_server.game_engine.entities.Player;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 
 /**
  * 
  */
-public abstract class AbstractGame implements Subject {
+public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGame> {
 
+	@Expose(serialize = false)
+	protected Logger log = Logger.getLogger(this.getClass().getName());
+	
 	/** The List with the observers subscribed to this game*/
+	@Expose(serialize = false)
 	private List<Observer> observerList;
 	
 	/** The list of the current players*/
-	private List<Player> activePlayerList;
+	//TODO: serialize the playerList to a List of the player names
+	@Expose(serialize = false)
+	private List<AbstractPlayer> activePlayerList;
 	
 	/** The unique id of the game*/
+	@Expose(serialize = false)
 	private final UUID ID = UUID.randomUUID(); 
 	
+	@Expose(serialize = false)
 	private int maxPlayerNumber;
-	private Player currentPlayer;
-	private Player winner;
+	@Expose(serialize = false)
+	private AbstractPlayer currentPlayer;
+	@Expose(serialize = false)
+	private AbstractPlayer winner;
+	@Expose(serialize = false)
 	public State state;
 	
 	public AbstractGame() {
 		maxPlayerNumber = 2;
 		winner = null;
 		observerList = new ArrayList<Observer>();
-		activePlayerList = Collections.synchronizedList(new ArrayList<Player>());
+		activePlayerList = Collections.synchronizedList(new ArrayList<AbstractPlayer>());
 	}
 		
 	/****************************************************************************
@@ -51,12 +74,29 @@ public abstract class AbstractGame implements Subject {
 	}
 
 	@Override
-	public void notifyObservers() {
+	public void notifyAllObservers() {
 		for (Observer o: observerList){
 			o.update(this);
 		}
-
+		
 	}
+	
+	@Override
+	public void notifyObserver(Observer o) {
+		if (observerList.contains(o)) {
+			o.update(this);
+		}
+		
+	}
+	
+	@Override
+	public void notifyObservers(List<Observer> o) {
+		for (Observer observer: o) {
+			notifyObserver(observer);
+		}
+		
+	}
+
 
 	/****************************************************************************
 	*	game logic related methods
@@ -90,7 +130,7 @@ public abstract class AbstractGame implements Subject {
 	 * @param Player, the player to be added
 	 * @throws Exception if the list is already full 
 	 */
-	public void addActivePlayer(Player player) throws Exception {
+	public void addActivePlayer(AbstractPlayer player) throws Exception {
 		if (isFull()) {
 			throw new Exception("The maximum number of players has been reached.");
 		} else if (activePlayerList.size() == 0) {
@@ -98,7 +138,7 @@ public abstract class AbstractGame implements Subject {
 		}
 		activePlayerList.add(player);
 		if (isFull()) {
-			notifyObservers();
+			notifyAllObservers();
 		}
 	}
 	
@@ -120,13 +160,30 @@ public abstract class AbstractGame implements Subject {
 
 	//public abstract String toJson();
 	
+	@Override
+	public JsonElement serialize(AbstractGame src, Type typeOfSrc, JsonSerializationContext context) {
+		JsonObject jsonGame = new JsonObject();
+		jsonGame.addProperty("name", src.getClass().getSimpleName());
+		jsonGame.addProperty("id", src.getID().toString());
+		
+		JsonArray players = new JsonArray();
+		for (AbstractPlayer player: activePlayerList) {
+			players.add(player.getPlayerName());
+		}
+		jsonGame.add("players", players);
+		JsonElement jsonState = new Gson().toJsonTree(state);
+		jsonGame.add("state", jsonState);
+		
+		return jsonGame;
+	}	
+	
 	// GETTERS AND SETTERS
 
-	public List<Player> getActivePlayerList() {
+	public List<AbstractPlayer> getActivePlayerList() {
 		return activePlayerList;
 	}
 
-	public void setActivePlayerList(List<Player> activePlayerList) {
+	public void setActivePlayerList(List<AbstractPlayer> activePlayerList) {
 		this.activePlayerList = activePlayerList;
 	}
 
@@ -138,7 +195,7 @@ public abstract class AbstractGame implements Subject {
 		this.maxPlayerNumber = maxPlayerNumber;
 	}
 
-	public Player getCurrentPlayer() {
+	public AbstractPlayer getCurrentPlayer() {
 		return currentPlayer;
 	}
 
@@ -146,12 +203,12 @@ public abstract class AbstractGame implements Subject {
 		this.currentPlayer = currentPlayer;
 	}
 
-	public Player getWinner() {
+	public AbstractPlayer getWinner() {
 		return winner;
 	}
 
-	public void setWinner(Player winner) {
-		this.winner = winner;
+	public void setWinner(AbstractPlayer abstractPlayer) {
+		this.winner = abstractPlayer;
 	}
 
 	public UUID getID() {

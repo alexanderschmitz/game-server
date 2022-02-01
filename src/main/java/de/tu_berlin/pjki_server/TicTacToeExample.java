@@ -5,9 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
+import com.google.gson.annotations.Expose;
 
-import com.google.gson.Gson;
 import de.tu_berlin.pjki_server.game_engine.AbstractGame;
 import de.tu_berlin.pjki_server.game_engine.MCTS;
 import de.tu_berlin.pjki_server.game_engine.State;
@@ -15,16 +14,15 @@ import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 
 public class TicTacToeExample extends AbstractGame implements MCTS {
 	
-	Logger log = Logger.getLogger(this.getClass().getName());
-
+	
+	@Expose(serialize = false)
 	static int winComb[][] = {{0,1,2},{3,4,5},{6,7,8},{0,3,6},{1,4,7},{2,5,8},{0,4,8},{2,4,6}};
-	Gson g = new Gson();
-
+	
 	public TicTacToeExample() {
 		super();
 		state = new State(new HashMap<>());
 		state.put("board", new int[]{0,0,0,0,0,0,0,0,0});
-		state.put("moveNumber", 1);
+		state.put("ply", 1);
 	}
 	
 	
@@ -35,19 +33,21 @@ public class TicTacToeExample extends AbstractGame implements MCTS {
 
 	@Override
 	public boolean isOver() {
-		if (isDraw()) {
-			return true;
-		}
 		int[] board = (int[]) state.get("board");
 		for(int[] combination: winComb){
 			if (board[combination[0]] == board[combination[1]] 
 				&& board[combination[1]] == board[combination[2]] 
 				&& board[combination[1]] != 0){
 					setWinner(getActivePlayerList().get(board[combination[0]]-1));
+					log.info("Final Board: %s. Winner is: %s.".formatted(this.toString(), getWinner().getPlayerName()));
 					return true;
 				}
 		}
-		return false;
+		if (isDraw()) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	@Override
@@ -58,6 +58,7 @@ public class TicTacToeExample extends AbstractGame implements MCTS {
 				return false;
 			}
 		}
+		log.info("Final Board: %s. Draw.".formatted(this.toString()));
 		return true;
 	}
 
@@ -71,24 +72,12 @@ public class TicTacToeExample extends AbstractGame implements MCTS {
 		board[cell] = currentPlayer + 1;
 		state.put("board", board);
 		state.put("moveNumber", (int) state.get("moveNumber")+1);
-		log.info("%s, id: %s, board:  %s on move %d".formatted(this.getClass().getCanonicalName(), this.getID().toString(), this.toString(), state.get("moveNumber")));
+		log.info("%s, board:  %s on move %d".formatted(this.getID().toString(), this.toString(), state.get("moveNumber")));
+		endTurn();
 		if (!isOver()) {
-			notifyObservers();
-			endTurn();
+			notifyAllObservers();
 		}	
 	}
-
-
-//	@Override
-//	public String toJson() {
-//		JsonObject jsonObject = new JsonObject();
-//		Gson g = new Gson();
-//		jsonObject.add("gameID", g.toJsonTree(super.ID));
-//		jsonObject.add("state", g.toJsonTree(super.getState()));
-//		
-//		return g.toJson(jsonObject);
-//	}
-
 
 	@Override
 	public List<String> listMoves() {

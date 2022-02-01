@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import de.tu_berlin.pjki_server.game_engine.entities.Player;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 
 public class GameTest {
@@ -28,8 +30,8 @@ public class GameTest {
 	
 	@Test
 	public void endTurn_shouldRotateTurns() {
-		Player player1 = new Player("player1", null, UUID.randomUUID());
-		Player player2 = new Player("player2", null, UUID.randomUUID());
+		Player player1 = new Player("player1", null, UUID.randomUUID(), null);
+		Player player2 = new Player("player2", null, UUID.randomUUID(), null);
 		try {
 			test.addActivePlayer(player1);
 			test.addActivePlayer(player2);
@@ -68,7 +70,7 @@ public class GameTest {
 	public void testNotifyObservers() {
 		GameObserver observer = new GameObserver();
 		test.registerObserver(observer);
-		test.notifyObservers();
+		test.notifyAllObservers();
 		assertEquals(test, observer.getGame());
 	}
 	
@@ -79,14 +81,14 @@ public class GameTest {
 		// completely fill the game with players
 		for (int i = 0; i < maxPlayers; i++) {
 			try {
-				testGame.addActivePlayer(new Player("Player" + i, null, UUID.randomUUID()));
+				testGame.addActivePlayer(new Player("Player" + i, null, UUID.randomUUID(), null));
 			} catch (Exception e) {
 				fail();
 			}
 		}
 		// try to add one more player
 		try {
-			testGame.addActivePlayer(new Player("OneTooMany", null, UUID.randomUUID()));
+			testGame.addActivePlayer(new Player("OneTooMany", null, UUID.randomUUID(), null));
 			fail();
 		} catch (Exception e) {
 			return;
@@ -129,14 +131,7 @@ public class GameTest {
 		
 		protected AbstractGame getGame(){
 			return game;
-		}
-
-		@Override
-		public void update(AbstractGame game, List<Player> players) {
-			// TODO Auto-generated method stub
-			
-		}
-		
+		}		
 	}
 
 }

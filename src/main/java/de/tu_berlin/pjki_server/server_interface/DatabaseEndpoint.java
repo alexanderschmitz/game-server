@@ -76,10 +76,4 @@ private Logger logger = Logger.getLogger(this.getClass().getName());
 		
 	}
 
-	@Override
-	public void update(AbstractGame game, List<UUID> players) {
-		// TODO Auto-generated method stub
-		
-	}
-	
 }

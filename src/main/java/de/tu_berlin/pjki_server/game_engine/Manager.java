@@ -1,10 +1,8 @@
 package de.tu_berlin.pjki_server.game_engine;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,8 +11,15 @@ import javax.inject.Singleton;
 import javax.websocket.Session;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.google.gson.GsonBuilder;
 
+import de.tu_berlin.pjki_server.game_engine.entities.AbstractPlayer;
+import de.tu_berlin.pjki_server.game_engine.entities.Player;
+
+/**
+ * This class manages the high level logic of the 
+ *
+ */
 @Singleton
 public final class Manager {
 
@@ -23,7 +28,7 @@ public final class Manager {
 	static Set<Session> sessions = Collections.synchronizedSet(new HashSet<Session>());
 	static Set<Player> players = Collections.synchronizedSet(new HashSet<Player>());
 	static ConcurrentHashMap<String, Class<? extends AbstractGame>> gameMap = new ConcurrentHashMap<>(); 
-	
+	static GsonBuilder gsonBuilder = new GsonBuilder();
 	
 	private Manager() {
 		
@@ -59,6 +64,13 @@ public final class Manager {
 	}
 	
 	public void addGameType(Class<? extends AbstractGame> gameClass) {
+		try {
+			AbstractGame game = gameClass.getConstructor().newInstance().getNewInstance();
+			gsonBuilder.registerTypeHierarchyAdapter(AbstractGame.class, game);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+		}
 		gameMap.put(gameClass.getSimpleName(), gameClass);
 	}
 	
@@ -79,7 +91,7 @@ public final class Manager {
 	public Player getPlayerByUsername(String username) {
 		if (username == null) return null;
 		for (Player player: players) {
-			if (player.getUserName().equals(username)) {
+			if (player.getPlayerName().equals(username)) {
 				return player;
 			}
 		}
@@ -105,14 +117,19 @@ public final class Manager {
 		}
 		return null;
 	}
-
-	public String lobbyToJson() {
-//		List<String> games = new ArrayList<>();
-//		Gson g = new Gson();
-//		for (AbstractGame game: lobby) {
-//			games.add(game.toJson());
-//		}
-		return new Gson().toJson(lobby);
+	
+	public AbstractGame getGameByPlayer(AbstractPlayer player) {
+		for (AbstractGame game: lobby) {
+			for (AbstractPlayer checkPlayer: game.getActivePlayerList()) {
+				if (checkPlayer.equals(player)) {
+					return game;
+				}
+			}
+		}
+		return null;
 	}
 	
+	public Gson getGson() {
+		return gsonBuilder.create();
+	}	
 }

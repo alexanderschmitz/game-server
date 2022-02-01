@@ -8,16 +8,16 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.tu_berlin.pjki_server.game_engine.Bot;
-import de.tu_berlin.pjki_server.game_engine.Player;
+import de.tu_berlin.pjki_server.game_engine.entities.Bot;
+import de.tu_berlin.pjki_server.game_engine.entities.Player;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 
 
 public class TicTacToeExampleTest {
 
 	TicTacToeExample game;
-	Player player1 = new Player("player1", null, UUID.randomUUID());
-	Player player2 = new Player("player2", null, UUID.randomUUID());
+	Player player1 = new Player("player1", null, UUID.randomUUID(), null);
+	Player player2 = new Player("player2", null, UUID.randomUUID(), null);
 	
 	@Before
 	public void initialiseTestVariables() {
@@ -81,22 +81,4 @@ public class TicTacToeExampleTest {
 		}
 		assertEquals(game.isOver(), true);
 	}
-	
-	@Test
-	public void testMCTSBot() {
-		TicTacToeExample tttExample = new TicTacToeExample();
-		Bot bot1 = new Bot("bot1", UUID.randomUUID());
-		Bot bot2 = new Bot("bot2", UUID.randomUUID());
-		tttExample.registerObserver(bot1);
-		tttExample.registerObserver(bot2);
-		try {
-			tttExample.addActivePlayer(bot1);
-			tttExample.addActivePlayer(bot2);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
-	
-	
 }

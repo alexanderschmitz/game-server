@@ -2,7 +2,6 @@ package de.tu_berlin.pjki_server.server_interface;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -16,17 +15,20 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import de.tu_berlin.pjki_server.game_engine.AbstractGame;
 import de.tu_berlin.pjki_server.game_engine.Manager;
-import de.tu_berlin.pjki_server.game_engine.Observer;
-import de.tu_berlin.pjki_server.game_engine.Player;
+import de.tu_berlin.pjki_server.game_engine.entities.AbstractPlayer;
+import de.tu_berlin.pjki_server.game_engine.entities.Player;
+import de.tu_berlin.pjki_server.game_engine.entities.Spectator;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 import de.tu_berlin.pjki_server.server_interface.packets.AbstractPacket;
 import de.tu_berlin.pjki_server.server_interface.packets.AbstractPacket.Type;
 import de.tu_berlin.pjki_server.server_interface.packets.Packet_0_Login;
+import de.tu_berlin.pjki_server.server_interface.packets.Packet_2_CreateGame;
 import de.tu_berlin.pjki_server.server_interface.packets.Packet_3_JoinGame;
 import de.tu_berlin.pjki_server.server_interface.packets.Packet_4_Move;
 
@@ -36,11 +38,12 @@ import de.tu_berlin.pjki_server.server_interface.packets.Packet_4_Move;
  */
 @ServerEndpoint(value="/game")
 @Singleton
-public class GameServerEndpoint implements Observer {
+public class GameServerEndpoint {
 	
 	
 	private Logger logger = Logger.getLogger(this.getClass().getName());
 	private static Manager manager = Manager.getManager();
+	Gson customGson;
 	
 	@OnMessage
 	public String onMessage(String message, Session session) {
@@ -52,57 +55,46 @@ public class GameServerEndpoint implements Observer {
 			return e.getMessage();
 		}
 		logger.info(new Gson().toJson(jsonObject));
-		Type packetType = AbstractPacket.getPacketType(jsonObject.get("type").getAsString());
+		Type packetType = Type.INVALID;
+		try {
+			packetType = AbstractPacket.getPacketType(jsonObject.get("type").getAsString());
+		} catch (Exception e) {
+		}
 		Gson gson = new Gson();
+		Player player = manager.getPlayerBySession(session);
 		switch (packetType) {
 		case INVALID:
 			return "invalid packet id";
 		case LOGIN:
 			return doLogin(session, message);			
 		case GETGAMES:
-			return manager.lobbyToJson();
+			return manager.getGson().toJson(manager.getLobby());
 		case CREATEGAME:
-			if (manager.getPlayerBySession(session) == null) {
-				return "Please login (packetID = 0) before creating a game";
-			}
-			String gameName = "TicTacToeExample";
-			AbstractGame newGame;
-			try {
-				newGame = manager.addGameToLobby(gameName);
-				newGame.registerObserver(this);
-				return new Gson().toJson(newGame);
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				return e.getMessage();
-			}
-			
-			
+			Packet_2_CreateGame parsedPacket_2 = gson.fromJson(message, Packet_2_CreateGame.class);
+			return doCreate(session, parsedPacket_2);			
 		case JOIN: //3
-			Player player = manager.getPlayerBySession(session);
 			if (player == null) {
 				return "Please login (packetID = 0) before joining a game";
 			}
 			Packet_3_JoinGame parsedPacket_3 = gson.fromJson(message, Packet_3_JoinGame.class);
 			UUID gameID = UUID.fromString(parsedPacket_3.getGameID());
 			AbstractGame game = manager.getGameByID(gameID);
-			player.setGameID(gameID);
 			try {
 				game.addActivePlayer(player);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
-			return new Gson().toJson(game);
+			return manager.getGson().toJson(game);
 		case MOVE: //4
-			player = manager.getPlayerBySession(session);
 			if (player == null) {
 				return "Please login (packetID = 0) before joining a game";
 			}
 			Packet_4_Move parsedPacket_4 = gson.fromJson(message, Packet_4_Move.class);
 			gameID = UUID.fromString(parsedPacket_4.getGameID());
-			if (!player.getGameID().equals(gameID)) {
+			game = manager.getGameByID(gameID);
+			if (!game.getActivePlayerList().contains(player)) {
 				return "player id and game id don't match";
 			}
-			game = manager.getGameByID(gameID);
 			try {
 				game.move(parsedPacket_4.getMove());
 			} catch (IllegalMoveException e) {
@@ -143,26 +135,6 @@ public class GameServerEndpoint implements Observer {
 		}
 	}
 	
-	@Override
-	public void update(AbstractGame updatedGame) {
-		update(updatedGame, updatedGame.getActivePlayerList());
-	}
-	
-	@Override
-	public void update(AbstractGame game, List<Player> players) {
-		for (Player player: players) {
-			if (game.getActivePlayerList().contains(player)) {
-				Session session = player.getSession();
-				try {
-					session.getBasicRemote().sendText(new Gson().toJson(game));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		
-	}
-	
 	private String doLogin(Session session, String message) {
 		Gson gson = new Gson();
 		Packet_0_Login parsedPacket_0 = gson.fromJson(message, Packet_0_Login.class);
@@ -171,7 +143,7 @@ public class GameServerEndpoint implements Observer {
 		if (player == null) { 
 			//this username is still free
 			logger.info("new user %s logs in".formatted(parsedPacket_0.getUsername()));
-			player = new Player(parsedPacket_0.getUsername(), session, UUID.randomUUID());
+			player = new Player(parsedPacket_0.getUsername(), session, UUID.randomUUID(), this);
 			manager.getPlayers().add(player);
 			return playerToJson(player);
 		} else if (parsedPacket_0.getPlayerID() != null) {
@@ -202,6 +174,23 @@ public class GameServerEndpoint implements Observer {
 			return true;
 		}
 	}
+	
+	private String doCreate(Session session, Packet_2_CreateGame parsedPacket) {
+		Player player = manager.getPlayerBySession(session);
+		if (player == null) {
+			return "Please login (packetID = 0) before creating a game";
+		}
+		
+		try {
+			AbstractGame newGame = manager.addGameToLobby(parsedPacket.getGameName());
+			newGame.registerObserver(player);
+			return manager.getGson().toJson(newGame);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			return e.getMessage();
+		}
+		
+	}
 		
 	/****************************************************************************
 	*	utility
@@ -227,14 +216,34 @@ public class GameServerEndpoint implements Observer {
 //		logger.info(String.format("Of %s games in the Lobby, there are %s full games ", manager.getLobby().size(), fullGames));	
 //	}
 	
-	private String playerToJson(Player player) {
+	private String playerToJson(AbstractPlayer player) {
 		JsonObject jsonObject = new JsonObject();
-		jsonObject.addProperty("username", player.getUserName());
+		jsonObject.addProperty("username", player.getPlayerName());
 		jsonObject.addProperty("playerID", player.getPlayerID().toString());
-		if (!(player.getGameID() == null)) {
-			jsonObject.addProperty("gameID", player.getGameID().toString());
+		AbstractGame activeGame = manager.getGameByPlayer(player);
+		if (!(activeGame == null)) {
+			jsonObject.addProperty("gameID", activeGame.getID().toString());
 		}
 		return new Gson().toJson(jsonObject);
+	}
+
+	public void update(Player player, AbstractGame game) {
+		try {
+			player.getSession().getBasicRemote().sendText(new Gson().toJson(game));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+
+	public void update(Spectator spectator, AbstractGame game) {
+		try {
+			spectator.getSession().getBasicRemote().sendText(new Gson().toJson(game));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
 	}
 
 		
