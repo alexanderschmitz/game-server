@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.tu_berlin.pjki_server.game_engine.entities.AbstractPlayer;
 import de.tu_berlin.pjki_server.game_engine.entities.Player;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 
@@ -114,7 +115,7 @@ public class GameTest {
 		}
 
 		@Override
-		public void move(String move) throws IllegalMoveException {
+		public void move(AbstractPlayer player, String move) throws IllegalMoveException {
 			// TODO Auto-generated method stub
 			
 		}

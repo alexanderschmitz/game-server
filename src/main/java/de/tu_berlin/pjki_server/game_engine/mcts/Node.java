@@ -1,39 +1,77 @@
 package de.tu_berlin.pjki_server.game_engine.mcts;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
+import de.tu_berlin.pjki_server.game_engine.AbstractGame;
 import de.tu_berlin.pjki_server.game_engine.State;
+import de.tu_berlin.pjki_server.game_engine.entities.AbstractPlayer;
+import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 
-public class Node {
-	Node parent;
-	List<Node> children;
-	State state;
-	int visits, wins, losses, draws = 0;
+public class Node<T extends AbstractGame & MCTS> {
+	private Node<T> parent = null;
+	private List<Node<T>> children;
+	private String move;
+	private State state;
+	private T game;
+	private int visits, wins = 0;
 	
-	public Node() {
+	
+	public Node(String move, Node<T> parent, T game) {
+		this.move = move;
+		this.parent = parent;
+		this.game = game;
+		this.children = new ArrayList<>();
 	}
 	
-	public double getValue() {
-		if (visits == 0) {
-			return 0;
-		} else {
-			return (wins + 0.5*draws) / visits;
+	public void expandNode(State state, AbstractPlayer player) {
+		game.setState(state);
+		if (!game.isOver()) {
+			for (String move: game.listMoves()) {
+				game.setState(state);
+				Node<T> child = new Node<T>(move, this, game);
+				try {
+					game.move(player, move);
+				} catch (IllegalMoveException e) {
+					e.printStackTrace();
+				}
+				child.setState(game.getState());
+				children.add(child);
+			}
 		}
 	}
+	
+	public void update(int result) {
+		visits++;
+		wins +=result;
+	}
+	
+	public double calculateScore() {
+		return (double) wins / (double) visits;
+	}
+	
+	public boolean isLeaf() {
+		return children.isEmpty();
+	}
+	
+	public boolean hasParent() {
+		return parent == null;
+	}
 
-	public Node getParent() {
+	public Node<T> getParent() {
 		return parent;
 	}
 
-	public void setParent(Node parent) {
+	public void setParent(Node<T> parent) {
 		this.parent = parent;
 	}
 
-	public List<Node> getChildren() {
+	public List<Node<T>> getChildren() {
 		return children;
 	}
 
-	public void setChildren(List<Node> children) {
+	public void setChildren(List<Node<T>> children) {
 		this.children = children;
 	}
 
@@ -61,20 +99,21 @@ public class Node {
 		this.wins = wins;
 	}
 
-	public int getLosses() {
-		return losses;
+	public String getMove() {
+		return move;
 	}
 
-	public void setLosses(int losses) {
-		this.losses = losses;
+	public void setMove(String move) {
+		this.move = move;
 	}
 
-	public int getDraws() {
-		return draws;
+	public T getGame() {
+		game.setState(state);
+		return game;
 	}
 
-	public void setDraws(int draws) {
-		this.draws = draws;
+	public void setGame(T game) {
+		this.game = game;
 	}
 	
 	

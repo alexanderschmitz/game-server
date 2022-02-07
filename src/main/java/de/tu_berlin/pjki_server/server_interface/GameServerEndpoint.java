@@ -96,7 +96,7 @@ public class GameServerEndpoint {
 				return "player id and game id don't match";
 			}
 			try {
-				game.executeMove(parsedPacket_4.getMove());
+				game.executeMove(player, parsedPacket_4.getMove());
 			} catch (IllegalMoveException e) {
 				return e.getMessage();
 			}

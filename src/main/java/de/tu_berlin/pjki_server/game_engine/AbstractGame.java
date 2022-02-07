@@ -18,11 +18,12 @@ import com.google.gson.annotations.Expose;
 import de.tu_berlin.pjki_server.game_engine.entities.AbstractPlayer;
 import de.tu_berlin.pjki_server.game_engine.entities.Player;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
+import de.tu_berlin.pjki_server.game_engine.exception.MaximumPlayerNumberExceededException;
 
 /**
  * 
  */
-public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGame> {
+public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGame>, Cloneable {
 
 	@Expose(serialize = false)
 	protected Logger log = Logger.getLogger(this.getClass().getName());
@@ -88,12 +89,19 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 		}
 		
 	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
 
 
 	/****************************************************************************
 	*	game logic related methods
 	****************************************************************************/
 
+
+	
 
 	/**
 	 * Ends the turn of current player and changes "currentPlayer" to the next player.
@@ -122,9 +130,9 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 	 * @param Player, the player to be added
 	 * @throws Exception if the list is already full 
 	 */
-	public void addActivePlayer(AbstractPlayer player) throws Exception {
+	public void addActivePlayer(AbstractPlayer player) throws MaximumPlayerNumberExceededException {
 		if (isFull()) {
-			throw new Exception("The maximum number of players has been reached.");
+			throw new MaximumPlayerNumberExceededException("The maximum number of players has been reached.");
 		} else if (activePlayerList.size() == 0) {
 			currentPlayer = player;
 		}
@@ -138,10 +146,10 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 		activePlayerList.remove(player);
 	}
 	
-	public abstract void move(String move) throws IllegalMoveException;
+	public abstract void move(AbstractPlayer player, String move) throws IllegalMoveException;
 	
-	public void executeMove(String move) throws IllegalMoveException{
-		move(move);
+	public void executeMove(AbstractPlayer player, String move) throws IllegalMoveException{
+		move(player, move);
 		endTurn();
 		if (!isOver()) {
 			notifyAllObservers();
@@ -178,6 +186,9 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 		
 		return jsonGame;
 	}	
+	
+	
+	
 	
 	// GETTERS AND SETTERS
 

@@ -9,6 +9,7 @@ import com.google.gson.annotations.Expose;
 
 import de.tu_berlin.pjki_server.game_engine.AbstractGame;
 import de.tu_berlin.pjki_server.game_engine.State;
+import de.tu_berlin.pjki_server.game_engine.entities.AbstractPlayer;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 import de.tu_berlin.pjki_server.game_engine.mcts.MCTS;
 
@@ -62,10 +63,10 @@ public class TicTacToeExample extends AbstractGame implements MCTS {
 		return true;
 	}
 
-	public void move(String move) throws IllegalMoveException {
+	public void move(AbstractPlayer player, String move) throws IllegalMoveException {
 		int cell = Integer.parseInt(move);
 		int[] board = (int[]) getState().get("board");
-		if (board[cell] != 0) {
+		if (board[cell] != 0 || !player.equals(getCurrentPlayer())) {
 			throw new IllegalMoveException();
 		}
 		int currentPlayer = getActivePlayerList().indexOf(getCurrentPlayer());

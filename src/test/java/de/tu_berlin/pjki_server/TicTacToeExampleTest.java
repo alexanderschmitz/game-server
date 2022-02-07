@@ -52,7 +52,7 @@ public class TicTacToeExampleTest {
 			fail();
 		}
 		try {
-			game.executeMove("2");
+			game.executeMove(player1, "2");
 		} catch (IllegalMoveException e) {
 			fail();
 		}
@@ -66,12 +66,12 @@ public class TicTacToeExampleTest {
 			fail();
 		}
 		try {
-			game.executeMove("3");
+			game.executeMove(player1, "3");
 		} catch (IllegalMoveException e) {
 			fail();
 		}
 		try {
-			game.executeMove("2");
+			game.executeMove(player2, "2");
 		} catch (IllegalMoveException e) {
 			fail();
 		}
