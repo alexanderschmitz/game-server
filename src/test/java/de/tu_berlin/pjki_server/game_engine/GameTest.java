@@ -3,6 +3,7 @@ package de.tu_berlin.pjki_server.game_engine;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -99,8 +100,13 @@ public class GameTest {
 	
 	private class SampleGame extends AbstractGame{
 
+		public SampleGame() {
+			super(new State(new HashMap<String, Object>()));
+			// TODO Auto-generated constructor stub
+		}
+
 		@Override
-		public boolean isOver() {
+		public boolean checkIfOver() {
 			return false;
 		}
 
@@ -110,7 +116,7 @@ public class GameTest {
 		}
 
 		@Override
-		public boolean isDraw() {
+		public boolean checkIfDraw() {
 			return false;
 		}
 

@@ -4,7 +4,7 @@ public class Packet_3_JoinGame extends AbstractPacket {
 
 	private String username;
 	private String playerID;
-	private String gameID;
+	private long gameID;
 	
 	
 	public Packet_3_JoinGame(Type type) {
@@ -32,12 +32,12 @@ public class Packet_3_JoinGame extends AbstractPacket {
 	}
 
 
-	public String getGameID() {
+	public long getGameID() {
 		return gameID;
 	}
 
 
-	public void setGameID(String gameID) {
+	public void setGameID(long gameID) {
 		this.gameID = gameID;
 	}
 

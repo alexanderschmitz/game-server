@@ -77,7 +77,7 @@ public class GameServerEndpoint {
 				return "Please login (packetID = 0) before joining a game";
 			}
 			Packet_3_JoinGame parsedPacket_3 = gson.fromJson(message, Packet_3_JoinGame.class);
-			UUID gameID = UUID.fromString(parsedPacket_3.getGameID());
+			long gameID = parsedPacket_3.getGameID();
 			AbstractGame game = manager.getGameByID(gameID);
 			try {
 				game.addActivePlayer(player);
@@ -90,7 +90,7 @@ public class GameServerEndpoint {
 				return "Please login (packetID = 0) before joining a game";
 			}
 			Packet_4_Move parsedPacket_4 = gson.fromJson(message, Packet_4_Move.class);
-			gameID = UUID.fromString(parsedPacket_4.getGameID());
+			gameID = parsedPacket_4.getGameID();
 			game = manager.getGameByID(gameID);
 			if (!game.getActivePlayerList().contains(player)) {
 				return "player id and game id don't match";
@@ -100,6 +100,8 @@ public class GameServerEndpoint {
 			} catch (IllegalMoveException e) {
 				return e.getMessage();
 			}
+			break;
+		case DATABASE:
 			
 			break;
 		default:
@@ -222,7 +224,7 @@ public class GameServerEndpoint {
 		jsonObject.addProperty("playerID", player.getPlayerID().toString());
 		AbstractGame activeGame = manager.getGameByPlayer(player);
 		if (!(activeGame == null)) {
-			jsonObject.addProperty("gameID", activeGame.getID().toString());
+			jsonObject.addProperty("gameID", activeGame.getID());
 		}
 		return new Gson().toJson(jsonObject);
 	}

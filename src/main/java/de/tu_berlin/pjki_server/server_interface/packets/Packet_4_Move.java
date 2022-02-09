@@ -4,7 +4,7 @@ public class Packet_4_Move extends AbstractPacket {
 
 	private String username;
 	private String playerID;
-	private String gameID;
+	private long gameID;
 	private String move;
 	
 	
@@ -34,12 +34,12 @@ public class Packet_4_Move extends AbstractPacket {
 	}
 
 
-	public String getGameID() {
+	public long getGameID() {
 		return gameID;
 	}
 
 
-	public void setGameID(String gameID) {
+	public void setGameID(Long gameID) {
 		this.gameID = gameID;
 	}
 

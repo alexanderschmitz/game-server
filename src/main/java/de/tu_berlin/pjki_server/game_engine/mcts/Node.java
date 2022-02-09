@@ -15,7 +15,8 @@ public class Node<T extends AbstractGame & MCTS> {
 	private String move;
 	private State state;
 	private T game;
-	private int visits, wins = 0;
+	private int visits = 0;
+	private double wins = 0;
 	
 	
 	public Node(String move, Node<T> parent, T game) {
@@ -27,7 +28,7 @@ public class Node<T extends AbstractGame & MCTS> {
 	
 	public void expandNode(State state, AbstractPlayer player) {
 		game.setState(state);
-		if (!game.isOver()) {
+		if (!game.checkIfOver()) {
 			for (String move: game.listMoves()) {
 				game.setState(state);
 				Node<T> child = new Node<T>(move, this, game);
@@ -42,7 +43,7 @@ public class Node<T extends AbstractGame & MCTS> {
 		}
 	}
 	
-	public void update(int result) {
+	public void update(double result) {
 		visits++;
 		wins +=result;
 	}
@@ -91,11 +92,11 @@ public class Node<T extends AbstractGame & MCTS> {
 		this.visits = visits;
 	}
 
-	public int getWins() {
+	public double getWins() {
 		return wins;
 	}
 
-	public void setWins(int wins) {
+	public void setWins(double wins) {
 		this.wins = wins;
 	}
 

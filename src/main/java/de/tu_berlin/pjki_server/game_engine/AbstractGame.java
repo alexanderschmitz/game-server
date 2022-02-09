@@ -1,11 +1,17 @@
 package de.tu_berlin.pjki_server.game_engine;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import java.util.logging.Logger;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -13,40 +19,62 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.google.gson.annotations.Expose;
-
 import de.tu_berlin.pjki_server.game_engine.entities.AbstractPlayer;
 import de.tu_berlin.pjki_server.game_engine.entities.Player;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 import de.tu_berlin.pjki_server.game_engine.exception.MaximumPlayerNumberExceededException;
+import de.tu_berlin.pjki_server.persistence.Controller;
 
 /**
  * 
  */
-public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGame>, Cloneable {
+@Entity
+public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGame>, Cloneable, Serializable {
+	
+	private static final long serialVersionUID = 1L;
 
-	@Expose(serialize = false)
+	@Transient
 	protected Logger log = Logger.getLogger(this.getClass().getName());
 	
 	/** The List with the observers subscribed to this game*/
+	@Transient
 	private List<Observer> observerList;
 	
 	/** The list of the current players*/
+	@OneToMany
 	private List<AbstractPlayer> activePlayerList;
 	
 	/** The unique id of the game*/
-	private final UUID ID = UUID.randomUUID(); 
+	@Id 
+	@GeneratedValue
+	private long ID; 
+	
+	@OneToMany
+	private List<String> moveHistory;
 	
 	private int maxPlayerNumber;
+	
+	@Transient
 	private AbstractPlayer currentPlayer;
+	
 	private AbstractPlayer winner;
+	
+	@Transient
 	private State state;
 	
-	public AbstractGame() {
+	private State initialState;
+	
+	private boolean over;
+	private boolean draw;
+	
+	public AbstractGame(State initialState) {
+		this.state = initialState;
+		this.initialState = initialState;
 		maxPlayerNumber = 2;
 		winner = null;
 		observerList = new ArrayList<Observer>();
 		activePlayerList = Collections.synchronizedList(new ArrayList<AbstractPlayer>());
+		moveHistory = new ArrayList<>();
 	}
 		
 	/****************************************************************************
@@ -149,32 +177,61 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 	public abstract void move(AbstractPlayer player, String move) throws IllegalMoveException;
 	
 	public void executeMove(AbstractPlayer player, String move) throws IllegalMoveException{
-		move(player, move);
+		try {
+			move(player, move);
+			moveHistory.add(move);
+		} catch (IllegalMoveException e) {
+			throw(e);
+		}
 		endTurn();
-		if (!isOver()) {
-			notifyAllObservers();
+		notifyAllObservers();
+		if (checkIfOver()) {
+			Controller controller = Controller.getController();
+			controller.persistGame(this);
 		}
 	};	
 	
-	public abstract boolean isOver();
+	public abstract boolean checkIfOver();
 	
-	public abstract boolean isDraw();
+	public abstract boolean checkIfDraw();
 	
+	public boolean isOver() {
+		if (over) {
+			return over;
+		} else {
+			return checkIfOver();
+		}
+	}
+	
+//	public void setOver(boolean over) {
+//		this.over = over;
+//	}
+	
+	public boolean isDraw() {
+		if (draw) {
+			return draw;
+		} else {
+			return checkIfDraw();
+		}
+	}
+	
+//	public void setDraw(boolean draw) {
+//		this.draw = draw;
+//	}
 	
 	
 	/****************************************************************************
 	*	general 
+	 * @param <T>
 	****************************************************************************/
 
 	public abstract AbstractGame getNewInstance();
-
-	//public abstract String toJson();
 	
 	@Override
 	public JsonElement serialize(AbstractGame src, Type typeOfSrc, JsonSerializationContext context) {
 		JsonObject jsonGame = new JsonObject();
 		jsonGame.addProperty("name", src.getClass().getSimpleName());
-		jsonGame.addProperty("id", src.getID().toString());
+		jsonGame.addProperty("id", src.getID());
 		
 		JsonArray players = new JsonArray();
 		for (AbstractPlayer player: activePlayerList) {
@@ -186,8 +243,6 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 		
 		return jsonGame;
 	}	
-	
-	
 	
 	
 	// GETTERS AND SETTERS
@@ -224,8 +279,24 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 		this.winner = abstractPlayer;
 	}
 
-	public UUID getID() {
+	public List<Observer> getObserverList() {
+		return observerList;
+	}
+
+	public void setObserverList(List<Observer> observerList) {
+		this.observerList = observerList;
+	}
+
+	public long getID() {
 		return ID;
+	}
+
+	public void setID(long iD) {
+		ID = iD;
+	}
+
+	public void setCurrentPlayer(AbstractPlayer currentPlayer) {
+		this.currentPlayer = currentPlayer;
 	}
 
 	public State getState() {
@@ -235,7 +306,4 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 	public void setState(State state) {
 		this.state = state;
 	}
-	
-	
-	
 }

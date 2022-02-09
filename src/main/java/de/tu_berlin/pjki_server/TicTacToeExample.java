@@ -14,26 +14,25 @@ import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 import de.tu_berlin.pjki_server.game_engine.mcts.MCTS;
 
 public class TicTacToeExample extends AbstractGame implements MCTS {
+	private static final long serialVersionUID = 1L;
 	
 	
-	@Expose(serialize = false)
 	static int winComb[][] = {{0,1,2},{3,4,5},{6,7,8},{0,3,6},{1,4,7},{2,5,8},{0,4,8},{2,4,6}};
 	
 	public TicTacToeExample() {
-		super();
-		setState(new State(new HashMap<>()));
+		super(new State(new HashMap<>()));
 		getState().put("board", new int[]{0,0,0,0,0,0,0,0,0});
 		getState().put("ply", 1);
 	}
 	
 	
-	public AbstractGame getNewInstance() {
+	public TicTacToeExample getNewInstance() {
 		return new TicTacToeExample();
 	}
 
 
 	@Override
-	public boolean isOver() {
+	public boolean checkIfOver() {
 		int[] board = (int[]) getState().get("board");
 		for(int[] combination: winComb){
 			if (board[combination[0]] == board[combination[1]] 
@@ -44,7 +43,7 @@ public class TicTacToeExample extends AbstractGame implements MCTS {
 					return true;
 				}
 		}
-		if (isDraw()) {
+		if (checkIfDraw()) {
 			return true;
 		} else {
 			return false;
@@ -52,7 +51,7 @@ public class TicTacToeExample extends AbstractGame implements MCTS {
 	}
 	
 	@Override
-	public boolean isDraw() {
+	public boolean checkIfDraw() {
 		int[] board = (int[]) getState().get("board");
 		for (int cell: board) {
 			if (cell == 0) {

@@ -61,7 +61,7 @@ public class MCTSBot<T extends AbstractGame & MCTS> extends AbstractPlayer{
 					if (!nodeToExplore.isLeaf()) {
 						nodeToExplore = getRandomChild(node);
 					}
-					int result = simulateRandom(nodeToExplore);		//simulation
+					double result = simulateRandom(nodeToExplore);		//simulation
 					backPropagation(nodeToExplore, result);			//backpropagation
 					
 				}
@@ -124,7 +124,7 @@ public class MCTSBot<T extends AbstractGame & MCTS> extends AbstractPlayer{
 						parent.getVisits(), child.getWins(), child.getVisits())));
 	}
 
-	private void backPropagation(Node<T> node, int result) {
+	private void backPropagation(Node<T> node, double result) {
 		Node<T> tempNode = node;
 		while (tempNode != null) {
 			tempNode.update(result);
@@ -132,15 +132,15 @@ public class MCTSBot<T extends AbstractGame & MCTS> extends AbstractPlayer{
 		}
 	}
 	
-	private int simulateRandom(Node<T> node) {
+	private double simulateRandom(Node<T> node) {
 		Node<T> tempNode = node;
 		while (!tempNode.getGame().isOver()) {
 			tempNode.setState(getRandomState(tempNode.getState(), tempNode.getGame()));
 		}
 		if (tempNode.getGame().isDraw()) {
-			return 1;
+			return 0.5;
 		} else if (tempNode.getGame().getWinner().equals(this)) {
-			return 2;
+			return 1;
 		} else {
 			return 0;
 		}

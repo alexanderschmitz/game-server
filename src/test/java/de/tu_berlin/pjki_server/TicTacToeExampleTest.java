@@ -34,21 +34,21 @@ public class TicTacToeExampleTest {
 	@Test
 	public void testGameOverPlayer1Wins() {
 		game.getState().put("board", new int[]{1,1,1,0,0,0,0,0,0});
-		assertEquals(game.isOver(), true);
+		assertEquals(game.checkIfOver(), true);
 		assertEquals(player1, game.getWinner());
 	}
 	
 	@Test
 	public void testGameOverPlayer2Wins() {
 		game.getState().put("board", new int[]{2,2,2,0,0,0,0,0,0});
-		assertEquals(game.isOver(), true);
+		assertEquals(game.checkIfOver(), true);
 		assertEquals(player2, game.getWinner());
 	}
 	
 	@Test
 	public void testMove() {
 		game.getState().put("board", new int[]{1,1,0,0,0,0,0,0,0});
-		if (game.isOver()) {
+		if (game.checkIfOver()) {
 			fail();
 		}
 		try {
@@ -56,13 +56,13 @@ public class TicTacToeExampleTest {
 		} catch (IllegalMoveException e) {
 			fail();
 		}
-		assertEquals(game.isOver(), true);
+		assertEquals(game.checkIfOver(), true);
 	}
 	
 	@Test
 	public void testMultipleMoves() {
 		game.getState().put("board", new int[]{2,2,0,0,0,0,0,0,0});
-		if (game.isOver()) {
+		if (game.checkIfOver()) {
 			fail();
 		}
 		try {
@@ -79,6 +79,6 @@ public class TicTacToeExampleTest {
 		for (int i: board) {
 			System.out.print(i + ",");
 		}
-		assertEquals(game.isOver(), true);
+		assertEquals(game.checkIfOver(), true);
 	}
 }

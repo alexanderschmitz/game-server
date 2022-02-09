@@ -31,7 +31,7 @@ public class RandomBot extends AbstractPlayer{
 
 	@Override
 	public void update(AbstractGame game) {
-		if (game.getCurrentPlayer().equals(this) && !game.isOver()) {
+		if (game.getCurrentPlayer().equals(this) && !game.checkIfOver()) {
 			try {
 				String move = calculateNextMove(game);
 				log.info("%s - Move: %s".formatted(getPlayerName(), move));

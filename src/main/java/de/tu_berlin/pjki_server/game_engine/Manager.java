@@ -108,10 +108,9 @@ public final class Manager {
 		return null;
 	}
 	
-	public AbstractGame getGameByID(UUID gameID) {
-		if (gameID == null) return null;
+	public AbstractGame getGameByID(long gameID) {
 		for (AbstractGame game: lobby) {
-			if (game.getID().equals(gameID)) {
+			if (game.getID() == gameID) {
 				return game;
 			}
 		}

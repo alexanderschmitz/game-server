@@ -17,6 +17,4 @@ public class State {
 	public void put(String key, Object object) {
 		state.put(key, object);
 	}
-	
-
 }
