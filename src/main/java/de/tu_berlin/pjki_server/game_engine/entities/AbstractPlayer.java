@@ -1,19 +1,20 @@
 package de.tu_berlin.pjki_server.game_engine.entities;
 
-import java.lang.reflect.Type;
-import java.util.UUID;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 import de.tu_berlin.pjki_server.game_engine.Observer;
 
+@Entity
 public abstract class AbstractPlayer implements Observer{
-
+	
+	
 	private String playerName;
-	private final UUID playerID = UUID.randomUUID();
+	
+	@Id
+	@GeneratedValue
+	private long playerID;
 	
 	public AbstractPlayer(String playerName) {
 		super();
@@ -28,7 +29,13 @@ public abstract class AbstractPlayer implements Observer{
 		this.playerName = playerName;
 	}
 
-	public UUID getPlayerID() {
+	public long getPlayerID() {
 		return playerID;
+	}
+
+	public void setPlayerID(long playerID) {
+		this.playerID = playerID;
 	}	
+	
+	
 }

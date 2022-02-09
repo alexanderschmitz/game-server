@@ -3,7 +3,7 @@ package de.tu_berlin.pjki_server.server_interface.packets;
 public class Packet_0_Login extends AbstractPacket{
 
 	private String username;
-	private String playerID;
+	private long playerID;
 	
 	public Packet_0_Login() {
 		super(Type.LOGIN);
@@ -18,11 +18,11 @@ public class Packet_0_Login extends AbstractPacket{
 		this.username = username;
 	}
 
-	public String getPlayerID() {
+	public long getPlayerID() {
 		return playerID;
 	}
 
-	public void setPlayerID(String playerID) {
+	public void setPlayerID(long playerID) {
 		this.playerID = playerID;
 	}
 	

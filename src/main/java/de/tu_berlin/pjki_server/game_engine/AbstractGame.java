@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -41,6 +42,7 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 	private List<Observer> observerList;
 	
 	/** The list of the current players*/
+	// TODO: @OneToMany
 	@OneToMany
 	private List<AbstractPlayer> activePlayerList;
 	
@@ -49,7 +51,7 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 	@GeneratedValue
 	private long ID; 
 	
-	@OneToMany
+	@ElementCollection
 	private List<String> moveHistory;
 	
 	private int maxPlayerNumber;
@@ -57,19 +59,17 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 	@Transient
 	private AbstractPlayer currentPlayer;
 	
+	@Transient
 	private AbstractPlayer winner;
 	
 	@Transient
 	private State state;
-	
-	private State initialState;
 	
 	private boolean over;
 	private boolean draw;
 	
 	public AbstractGame(State initialState) {
 		this.state = initialState;
-		this.initialState = initialState;
 		maxPlayerNumber = 2;
 		winner = null;
 		observerList = new ArrayList<Observer>();
@@ -185,7 +185,7 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 		}
 		endTurn();
 		notifyAllObservers();
-		if (checkIfOver()) {
+		if (isOver()) {
 			Controller controller = Controller.getController();
 			controller.persistGame(this);
 		}
@@ -306,4 +306,10 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 	public void setState(State state) {
 		this.state = state;
 	}
+
+	public List<String> getMoveHistory() {
+		return moveHistory;
+	}
+	
+	
 }

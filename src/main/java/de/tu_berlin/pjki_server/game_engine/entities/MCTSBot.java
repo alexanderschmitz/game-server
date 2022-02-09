@@ -7,18 +7,24 @@ import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 
+import javax.persistence.Entity;
+import javax.persistence.Transient;
+
 import de.tu_berlin.pjki_server.game_engine.AbstractGame;
 import de.tu_berlin.pjki_server.game_engine.State;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 import de.tu_berlin.pjki_server.game_engine.mcts.MCTS;
 import de.tu_berlin.pjki_server.game_engine.mcts.Node;
 
+@Entity
 public class MCTSBot<T extends AbstractGame & MCTS> extends AbstractPlayer{
 	
 	
-	
+	@Transient
 	private Logger log = Logger.getLogger(this.getClass().getName());
+	@Transient
 	Random random = new Random();
+	@Transient
 	private final Class<T> gameClass;
 	
 	public MCTSBot(String name, Class<T> gameClass) {

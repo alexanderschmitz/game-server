@@ -13,7 +13,7 @@ import de.tu_berlin.pjki_server.game_engine.AbstractGame;
 public class Controller {
 
 	private static Controller INSTANCE;
-	private EntityManager entityManager;
+	private final EntityManager entityManager;
         
 	private Controller() {
 		EntityManagerFactory emf = Persistence.createEntityManagerFactory("$objectdb/db/game.odb");
@@ -27,13 +27,19 @@ public class Controller {
 		return INSTANCE;
 	}
 	
+	public EntityManager getEntityManager() {
+		return entityManager;
+	}
+	
 	public synchronized void persistGame(AbstractGame game) {
 		entityManager.getTransaction().begin();
 		entityManager.persist(game);
 		entityManager.getTransaction().commit();
+	}	
+	
+	public synchronized void deleteTable(Class<? extends AbstractGame> gameClass) {
+		entityManager.getTransaction().begin();
+		entityManager.createQuery("DELETE FROM " + gameClass.getSimpleName()).executeUpdate();
+		entityManager.getTransaction().commit();
 	}
-	
-	
-	
-	
 }

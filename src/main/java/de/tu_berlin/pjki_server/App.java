@@ -1,6 +1,5 @@
 package de.tu_berlin.pjki_server;
 
-import de.tu_berlin.pjki_server.game_engine.AbstractGame;
 import de.tu_berlin.pjki_server.game_engine.Manager;
 import de.tu_berlin.pjki_server.server_interface.WebSocketServer;
 

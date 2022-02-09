@@ -4,6 +4,7 @@ import java.util.Map;
 
 public class State {
 	
+	
 	private Map<String, Object> state;
 
 	public State(Map<String, Object> state) {

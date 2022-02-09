@@ -1,22 +1,26 @@
-package de.tu_berlin.pjki_server.game_engine.entities;
+package de.tu_berlin.pjki_server.examples;
 
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 
+import javax.persistence.Entity;
+import javax.persistence.Transient;
+
 import de.tu_berlin.pjki_server.game_engine.AbstractGame;
+import de.tu_berlin.pjki_server.game_engine.entities.AbstractPlayer;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 import de.tu_berlin.pjki_server.game_engine.mcts.MCTS;
 
+@Entity
 public class RandomBot extends AbstractPlayer{
 	
+	@Transient
 	private Logger log = Logger.getLogger(this.getClass().getName());
 	
 	public RandomBot(String name) {
 		super(name);
 	}	
-	
-	
 	
 	private String calculateNextMove(AbstractGame game) {
 		if (!MCTS.class.isAssignableFrom(game.getClass()) ) {

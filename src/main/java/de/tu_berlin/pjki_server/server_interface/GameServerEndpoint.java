@@ -148,11 +148,11 @@ public class GameServerEndpoint {
 			player = new Player(parsedPacket_0.getUsername(), session, UUID.randomUUID(), this);
 			manager.getPlayers().add(player);
 			return playerToJson(player);
-		} else if (parsedPacket_0.getPlayerID() != null) {
+		} else if (parsedPacket_0.getPlayerID() != 0) {
 			//if a playerID is send
 			try {
 				//check if it is a valid id
-				if (!player.getPlayerID().equals(UUID.fromString(parsedPacket_0.getPlayerID()))) {
+				if (!(player.getPlayerID() == parsedPacket_0.getPlayerID())) {
 					return "Username already taken OR username and player id don't match";
 				} else {
 				//existing user logs in
@@ -221,7 +221,7 @@ public class GameServerEndpoint {
 	private String playerToJson(AbstractPlayer player) {
 		JsonObject jsonObject = new JsonObject();
 		jsonObject.addProperty("username", player.getPlayerName());
-		jsonObject.addProperty("playerID", player.getPlayerID().toString());
+		jsonObject.addProperty("playerID", player.getPlayerID());
 		AbstractGame activeGame = manager.getGameByPlayer(player);
 		if (!(activeGame == null)) {
 			jsonObject.addProperty("gameID", activeGame.getID());

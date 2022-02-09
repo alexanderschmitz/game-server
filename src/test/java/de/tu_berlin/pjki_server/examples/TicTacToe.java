@@ -1,31 +1,35 @@
-package de.tu_berlin.pjki_server;
+package de.tu_berlin.pjki_server.examples;
 
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.persistence.Entity;
+
 import de.tu_berlin.pjki_server.game_engine.AbstractGame;
 import de.tu_berlin.pjki_server.game_engine.State;
 import de.tu_berlin.pjki_server.game_engine.entities.AbstractPlayer;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 import de.tu_berlin.pjki_server.game_engine.mcts.MCTS;
 
-public class TicTacToeExample extends AbstractGame implements MCTS {
+@Entity
+public class TicTacToe extends AbstractGame implements MCTS {
 	private static final long serialVersionUID = 1L;
 	
 	
 	static int winComb[][] = {{0,1,2},{3,4,5},{6,7,8},{0,3,6},{1,4,7},{2,5,8},{0,4,8},{2,4,6}};
 	
-	public TicTacToeExample() {
+	public TicTacToe() {
 		super(new State(new HashMap<>()));
 		getState().put("board", new int[]{0,0,0,0,0,0,0,0,0});
 		getState().put("ply", 1);
 	}
 	
 	
-	public TicTacToeExample getNewInstance() {
-		return new TicTacToeExample();
+	public TicTacToe getNewInstance() {
+		return new TicTacToe();
 	}
 
 

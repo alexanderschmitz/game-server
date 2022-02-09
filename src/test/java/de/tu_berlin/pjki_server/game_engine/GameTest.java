@@ -100,6 +100,11 @@ public class GameTest {
 	
 	private class SampleGame extends AbstractGame{
 
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		public SampleGame() {
 			super(new State(new HashMap<String, Object>()));
 			// TODO Auto-generated constructor stub

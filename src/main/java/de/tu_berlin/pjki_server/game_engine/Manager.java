@@ -78,10 +78,10 @@ public final class Manager {
 		gameMap.remove(gameClass.getSimpleName());
 	}
 	
-	public Player getPlayerByID(UUID playerID) {
+	public Player getPlayerByID(Long playerID) {
 		if (playerID == null) return null;		
 		for (Player player: players) {
-			if (player.getPlayerID().equals(playerID)) {
+			if (player.getPlayerID() == playerID) {
 				return player;
 			}
 		}

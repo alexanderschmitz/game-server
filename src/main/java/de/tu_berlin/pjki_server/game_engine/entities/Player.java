@@ -2,14 +2,19 @@ package de.tu_berlin.pjki_server.game_engine.entities;
 
 import java.util.UUID;
 
+import javax.persistence.Entity;
+import javax.persistence.Transient;
 import javax.websocket.Session;
 
 import de.tu_berlin.pjki_server.game_engine.AbstractGame;
 import de.tu_berlin.pjki_server.server_interface.GameServerEndpoint;
 
+@Entity
 public class Player extends AbstractPlayer{
 
+	@Transient
 	private Session session;
+	@Transient
 	private GameServerEndpoint serverEndpoint;
 	
 	public Player(String userName, Session session, UUID playerID, GameServerEndpoint serverEndpoint) {
