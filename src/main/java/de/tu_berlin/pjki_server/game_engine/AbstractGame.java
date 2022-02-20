@@ -119,8 +119,8 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 	}
 	
 	@Override
-	public Object clone() throws CloneNotSupportedException {
-		return super.clone();
+	public AbstractGame clone() throws CloneNotSupportedException {
+		return (AbstractGame) super.clone();
 	}
 
 
@@ -189,7 +189,7 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 			Controller controller = Controller.getController();
 			controller.persistGame(this);
 		}
-	};	
+	}
 	
 	public abstract boolean checkIfOver();
 	

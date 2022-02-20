@@ -26,21 +26,21 @@ public class Node<T extends AbstractGame & MCTS> {
 		this.children = new ArrayList<>();
 	}
 	
-	public void expandNode(State state, AbstractPlayer player) {
-		game.setState(state);
-		if (!game.checkIfOver()) {
+	public void expandNode(AbstractPlayer player) {
+		//if (!game.checkIfOver()) {
 			for (String move: game.listMoves()) {
-				game.setState(state);
-				Node<T> child = new Node<T>(move, this, game);
 				try {
+					game.setState(state.clone());
+					Node<T> child = new Node<T>(move, this, game);
 					game.move(player, move);
-				} catch (IllegalMoveException e) {
-					e.printStackTrace();
+					child.setState(game.getState());
+					children.add(child);
+				} catch (IllegalMoveException | CloneNotSupportedException e) {
+					continue;
 				}
-				child.setState(game.getState());
-				children.add(child);
+				
 			}
-		}
+		//}
 	}
 	
 	public void update(double result) {
@@ -49,7 +49,7 @@ public class Node<T extends AbstractGame & MCTS> {
 	}
 	
 	public double calculateScore() {
-		return (double) wins / (double) visits;
+		return wins / visits;
 	}
 	
 	public boolean isLeaf() {
@@ -80,8 +80,8 @@ public class Node<T extends AbstractGame & MCTS> {
 		return state;
 	}
 
-	public void setState(State state) {
-		this.state = state;
+	public void setState(State state) throws CloneNotSupportedException {
+		this.state = state.clone();
 	}
 
 	public int getVisits() {

@@ -28,6 +28,7 @@ public class TicTacToe extends AbstractGame implements MCTS {
 	}
 	
 	
+	@Override
 	public TicTacToe getNewInstance() {
 		return new TicTacToe();
 	}
@@ -64,6 +65,7 @@ public class TicTacToe extends AbstractGame implements MCTS {
 		return true;
 	}
 
+	@Override
 	public void move(AbstractPlayer player, String move) throws IllegalMoveException {
 		int cell = Integer.parseInt(move);
 		int[] board = (int[]) getState().get("board");

@@ -1,6 +1,7 @@
 package de.tu_berlin.pjki_server.game_engine.entities;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -52,27 +53,32 @@ public class MCTSBot<T extends AbstractGame & MCTS> extends AbstractPlayer{
 			System.out.println("Game does not implement MCTS interface");
 			return null;
 		} else {
-			
 			T gameCopy;
 			try {
 				gameCopy = gameClass.cast(game.clone());
 				Node<T> rootNode = new Node<T>(null, null, gameCopy);
-				rootNode.setState(game.getState());
-				
+				rootNode.setState(game.getState().clone());
 				long end = System.currentTimeMillis() + 1000;
-				while (System.currentTimeMillis() < end) {
+//				while (System.currentTimeMillis() < end) {
+				for (int i = 0; i<10; i++) {
 					Node<T> node = getPromisingChild(rootNode);		//selection
-					node.expandNode(node.getState(), this);			//expansion
+					node.expandNode(this);			//expansion
 					Node<T> nodeToExplore = node;
 					if (!nodeToExplore.isLeaf()) {
 						nodeToExplore = getRandomChild(node);
 					}
-					double result = simulateRandom(nodeToExplore);		//simulation
+					double result = simulateRandom(nodeToExplore);	//simulation
 					backPropagation(nodeToExplore, result);			//backpropagation
 					
 				}
 				Node<T> bestNode = getChildWithBestScore(rootNode);
-				return bestNode.getMove();
+				if (bestNode.getMove() == null) {
+					List<String> moves = bestNode.getGame().listMoves();
+					return moves.get(random.nextInt(moves.size()));
+				} else {
+					return bestNode.getMove();
+				}
+				
 			} catch (CloneNotSupportedException e) {
 				e.printStackTrace();
 				return null;
@@ -90,7 +96,11 @@ public class MCTSBot<T extends AbstractGame & MCTS> extends AbstractPlayer{
 			} catch (IllegalMoveException e) {
 				continue;
 			}
-			legalStates.add(game.getState());
+			try {
+				legalStates.add(game.getState().clone());
+			} catch (CloneNotSupportedException e) {
+				continue;
+			}
 		}
 		return legalStates;
 	}
@@ -141,7 +151,11 @@ public class MCTSBot<T extends AbstractGame & MCTS> extends AbstractPlayer{
 	private double simulateRandom(Node<T> node) {
 		Node<T> tempNode = node;
 		while (!tempNode.getGame().isOver()) {
-			tempNode.setState(getRandomState(tempNode.getState(), tempNode.getGame()));
+			try {
+				tempNode.setState(getRandomState(tempNode.getState(), tempNode.getGame()));
+			} catch (CloneNotSupportedException e) {
+				break;
+			}
 		}
 		if (tempNode.getGame().isDraw()) {
 			return 0.5;
@@ -153,6 +167,9 @@ public class MCTSBot<T extends AbstractGame & MCTS> extends AbstractPlayer{
 	}
 	
 	private Node<T> getChildWithBestScore(Node<T> parent){
+		if (parent.getChildren().isEmpty()) {
+			return parent;
+		}
 		Node<T> bestChild = parent.getChildren().get(0);
 		for (Node<T> child: parent.getChildren()) {
 			if (child.calculateScore() > bestChild.calculateScore()) {
