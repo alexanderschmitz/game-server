@@ -5,12 +5,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.persistence.Entity;
+
 import de.tu_berlin.pjki_server.game_engine.AbstractGame;
 import de.tu_berlin.pjki_server.game_engine.State;
 import de.tu_berlin.pjki_server.game_engine.entities.AbstractPlayer;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 import de.tu_berlin.pjki_server.game_engine.mcts.MCTS;
 
+
+
+/**
+ * A test class used for any any tests regarding the game server.
+ * Especially for database tests we dont want to test on actual game classes.
+ *
+ */
+@Entity
 public class TicTacToeExample extends AbstractGame implements MCTS {
 	private static final long serialVersionUID = 1L;
 	
@@ -24,6 +35,7 @@ public class TicTacToeExample extends AbstractGame implements MCTS {
 	}
 	
 	
+	@Override
 	public TicTacToeExample getNewInstance() {
 		return new TicTacToeExample();
 	}
@@ -37,7 +49,7 @@ public class TicTacToeExample extends AbstractGame implements MCTS {
 				&& board[combination[1]] == board[combination[2]] 
 				&& board[combination[1]] != 0){
 					setWinner(getActivePlayerList().get(board[combination[0]]-1));
-					log.info("Final Board: %s. Winner is: %s.".formatted(this.toString(), getWinner().getPlayerName()));
+//					log.info("Final Board: %s. Winner is: %s.".formatted(this.toString(), getWinner().getPlayerName()));
 					return true;
 				}
 		}
@@ -56,10 +68,11 @@ public class TicTacToeExample extends AbstractGame implements MCTS {
 				return false;
 			}
 		}
-		log.info("Final Board: %s. Draw.".formatted(this.toString()));
+//		log.info("Final Board: %s. Draw.".formatted(this.toString()));
 		return true;
 	}
 
+	@Override
 	public void move(AbstractPlayer player, String move) throws IllegalMoveException {
 		int cell = Integer.parseInt(move);
 		int[] board = (int[]) getState().get("board");

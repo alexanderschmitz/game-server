@@ -4,7 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Singleton;
@@ -17,7 +16,11 @@ import de.tu_berlin.pjki_server.game_engine.entities.AbstractPlayer;
 import de.tu_berlin.pjki_server.game_engine.entities.Player;
 
 /**
- * This class manages the high level logic of the 
+ * This class manages the high level logic of the Game Server.
+ * <p> Active Games in the lobby
+ * <p> Active Players in the players list
+ * <p> Active Clients with the sessions
+ * <p> Registered Games in the gameMap
  *
  */
 @Singleton

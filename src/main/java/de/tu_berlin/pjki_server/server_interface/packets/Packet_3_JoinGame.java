@@ -4,10 +4,11 @@ public class Packet_3_JoinGame extends AbstractPacket {
 
 	private String username;
 	private String playerID;
+	private int joinAsPlayer;
 	private long gameID;
 	
 	
-	public Packet_3_JoinGame(Type type) {
+	public Packet_3_JoinGame() {
 		super(Type.JOIN);
 	}
 
@@ -41,6 +42,17 @@ public class Packet_3_JoinGame extends AbstractPacket {
 		this.gameID = gameID;
 	}
 
+
+	public int getJoinAsPlayer() {
+		return joinAsPlayer;
+	}
+
+
+	public void setJoinAsPlayer(int joinAsPlayer) {
+		this.joinAsPlayer = joinAsPlayer;
+	}
+
+	
 	
 	
 }

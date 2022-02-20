@@ -38,7 +38,7 @@ public class RandomBot extends AbstractPlayer{
 		if (game.getCurrentPlayer().equals(this) && !game.checkIfOver()) {
 			try {
 				String move = calculateNextMove(game);
-				log.info("%s - Move: %s".formatted(getPlayerName(), move));
+//				log.info("%s - Move: %s".formatted(getPlayerName(), move));
 				game.executeMove(this, move);				
 			} catch (IllegalMoveException e) {
 				e.printStackTrace();

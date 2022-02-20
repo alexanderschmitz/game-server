@@ -22,7 +22,6 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import de.tu_berlin.pjki_server.game_engine.entities.AbstractPlayer;
 import de.tu_berlin.pjki_server.game_engine.entities.Player;
-import de.tu_berlin.pjki_server.game_engine.entities.Spectator;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 import de.tu_berlin.pjki_server.game_engine.exception.MaximumPlayerNumberExceededException;
 import de.tu_berlin.pjki_server.persistence.Controller;
@@ -43,7 +42,6 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 	private List<Observer> observerList;
 	
 	/** The list of the current players*/
-	// TODO: @OneToMany
 	@OneToMany
 	private List<AbstractPlayer> activePlayerList;
 	
@@ -98,7 +96,7 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 	@Override
 	public void notifyAllObservers() {
 		for (Observer o: observerList){
-			o.update(this);
+			notifyObserver(o);
 		}
 		
 	}
@@ -107,6 +105,7 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 	public void notifyObserver(Observer o) {
 		if (observerList.contains(o)) {
 			o.update(this);
+			
 		}
 		
 	}

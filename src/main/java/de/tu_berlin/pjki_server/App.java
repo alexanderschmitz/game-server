@@ -5,11 +5,14 @@ import de.tu_berlin.pjki_server.server_interface.WebSocketServer;
 
 /*
  * Standard entry point
- * Usage: java de.tu_berlin.pjki_server.App <YourGame> <Port> 
+ * Usage: java de.tu_berlin.pjki_server.App
  * 
  */
 public class App {
 	
+	/**
+	 * 
+	 */
 	private static Manager manager = Manager.getManager();
 	
 	public static void main( String[] args ){

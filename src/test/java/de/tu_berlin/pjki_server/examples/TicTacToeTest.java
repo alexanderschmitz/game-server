@@ -14,14 +14,21 @@ import de.tu_berlin.pjki_server.game_engine.entities.AbstractPlayer;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 import de.tu_berlin.pjki_server.game_engine.mcts.MCTS;
 
+
+
+/**
+ * A test class used for any any tests regarding the game server.
+ * Especially for database tests we dont want to test on actual game classes.
+ *
+ */
 @Entity
-public class TicTacToe extends AbstractGame implements MCTS {
+public class TicTacToeTest extends AbstractGame implements MCTS {
 	private static final long serialVersionUID = 1L;
 	
 	
 	static int winComb[][] = {{0,1,2},{3,4,5},{6,7,8},{0,3,6},{1,4,7},{2,5,8},{0,4,8},{2,4,6}};
 	
-	public TicTacToe() {
+	public TicTacToeTest() {
 		super(new State(new HashMap<>()));
 		getState().put("board", new int[]{0,0,0,0,0,0,0,0,0});
 		getState().put("ply", 1);
@@ -29,8 +36,8 @@ public class TicTacToe extends AbstractGame implements MCTS {
 	
 	
 	@Override
-	public TicTacToe getNewInstance() {
-		return new TicTacToe();
+	public TicTacToeTest getNewInstance() {
+		return new TicTacToeTest();
 	}
 
 

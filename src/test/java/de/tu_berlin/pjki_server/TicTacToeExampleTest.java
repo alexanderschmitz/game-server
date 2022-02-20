@@ -8,20 +8,20 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.tu_berlin.pjki_server.examples.TicTacToe;
+import de.tu_berlin.pjki_server.examples.TicTacToeTest;
 import de.tu_berlin.pjki_server.game_engine.entities.Player;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 
 
 public class TicTacToeExampleTest {
 
-	TicTacToe game;
-	Player player1 = new Player("player1", null, UUID.randomUUID(), null);
-	Player player2 = new Player("player2", null, UUID.randomUUID(), null);
+	TicTacToeTest game;
+	Player player1 = new Player("player1", null, null);
+	Player player2 = new Player("player2", null, null);
 	
 	@Before
 	public void initialiseTestVariables() {
-		game = new TicTacToe();
+		game = new TicTacToeTest();
 		try {
 			game.addActivePlayer(player1);
 			game.addActivePlayer(player2);

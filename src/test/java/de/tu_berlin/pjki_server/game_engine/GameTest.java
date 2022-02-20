@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 import org.junit.Before;
@@ -32,8 +31,8 @@ public class GameTest {
 	
 	@Test
 	public void endTurn_shouldRotateTurns() {
-		Player player1 = new Player("player1", null, UUID.randomUUID(), null);
-		Player player2 = new Player("player2", null, UUID.randomUUID(), null);
+		Player player1 = new Player("player1", null, null);
+		Player player2 = new Player("player2", null, null);
 		try {
 			test.addActivePlayer(player1);
 			test.addActivePlayer(player2);
@@ -83,14 +82,14 @@ public class GameTest {
 		// completely fill the game with players
 		for (int i = 0; i < maxPlayers; i++) {
 			try {
-				testGame.addActivePlayer(new Player("Player" + i, null, UUID.randomUUID(), null));
+				testGame.addActivePlayer(new Player("Player" + i, null, null));
 			} catch (Exception e) {
 				fail();
 			}
 		}
 		// try to add one more player
 		try {
-			testGame.addActivePlayer(new Player("OneTooMany", null, UUID.randomUUID(), null));
+			testGame.addActivePlayer(new Player("OneTooMany", null, null));
 			fail();
 		} catch (Exception e) {
 			return;

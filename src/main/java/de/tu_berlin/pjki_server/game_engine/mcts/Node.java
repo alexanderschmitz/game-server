@@ -2,8 +2,6 @@ package de.tu_berlin.pjki_server.game_engine.mcts;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-
 import de.tu_berlin.pjki_server.game_engine.AbstractGame;
 import de.tu_berlin.pjki_server.game_engine.State;
 import de.tu_berlin.pjki_server.game_engine.entities.AbstractPlayer;
@@ -28,11 +26,11 @@ public class Node<T extends AbstractGame & MCTS> {
 	
 	public void expandNode(AbstractPlayer player) {
 		//if (!game.checkIfOver()) {
-			for (String move: game.listMoves()) {
+			for (String legalMove: game.listMoves()) {
 				try {
 					game.setState(state.clone());
-					Node<T> child = new Node<T>(move, this, game);
-					game.move(player, move);
+					Node<T> child = new Node<T>(legalMove, this, game);
+					game.move(player, legalMove);
 					child.setState(game.getState());
 					children.add(child);
 				} catch (IllegalMoveException | CloneNotSupportedException e) {

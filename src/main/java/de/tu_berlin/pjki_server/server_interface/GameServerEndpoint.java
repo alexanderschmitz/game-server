@@ -2,7 +2,6 @@ package de.tu_berlin.pjki_server.server_interface;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.UUID;
 import java.util.logging.Logger;
 
 import javax.inject.Singleton;
@@ -15,22 +14,22 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import de.tu_berlin.pjki_server.game_engine.AbstractGame;
 import de.tu_berlin.pjki_server.game_engine.Manager;
-import de.tu_berlin.pjki_server.game_engine.entities.AbstractPlayer;
 import de.tu_berlin.pjki_server.game_engine.entities.Player;
 import de.tu_berlin.pjki_server.game_engine.entities.Spectator;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
+import de.tu_berlin.pjki_server.persistence.Controller;
 import de.tu_berlin.pjki_server.server_interface.packets.AbstractPacket;
 import de.tu_berlin.pjki_server.server_interface.packets.AbstractPacket.Type;
 import de.tu_berlin.pjki_server.server_interface.packets.Packet_0_Login;
 import de.tu_berlin.pjki_server.server_interface.packets.Packet_2_CreateGame;
 import de.tu_berlin.pjki_server.server_interface.packets.Packet_3_JoinGame;
 import de.tu_berlin.pjki_server.server_interface.packets.Packet_4_Move;
+import de.tu_berlin.pjki_server.server_interface.packets.Packet_5_Database;
 
 /**
  * The Endpoint class for the Websocket Interface to the game logic.
@@ -59,6 +58,7 @@ public class GameServerEndpoint {
 		try {
 			packetType = AbstractPacket.getPacketType(jsonObject.get("type").getAsString());
 		} catch (Exception e) {
+			return "invalid packet";
 		}
 		Gson gson = new Gson();
 		Player player = manager.getPlayerBySession(session);
@@ -80,7 +80,10 @@ public class GameServerEndpoint {
 			long gameID = parsedPacket_3.getGameID();
 			AbstractGame game = manager.getGameByID(gameID);
 			try {
-				game.addActivePlayer(player);
+				if (parsedPacket_3.getJoinAsPlayer() == 1) {
+					game.addActivePlayer(player);
+				}
+				game.registerObserver(player);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
@@ -102,8 +105,17 @@ public class GameServerEndpoint {
 			}
 			break;
 		case DATABASE:
+			Packet_5_Database parsedPacket_5 = gson.fromJson(message, Packet_5_Database.class);
+			Controller controller = Controller.getController();
+			Class<? extends AbstractGame> gameClass = manager.getGameMap().get(parsedPacket_5.getGameType()); 
+			if (gameClass == null) {
+				return "Specify a valid game type: ".concat(gson.toJson(manager.getGameMap().keys()));
+			} else if (parsedPacket_5.getGameCount() <= 0) {
+				return manager.getGson().toJson(controller.query(gameClass));
+			} else {
+				return manager.getGson().toJson(controller.query(gameClass, parsedPacket_5.getGameCount()));
+			}
 			
-			break;
 		default:
 			break;
 		
@@ -145,9 +157,9 @@ public class GameServerEndpoint {
 		if (player == null) { 
 			//this username is still free
 			logger.info("new user %s logs in".formatted(parsedPacket_0.getUsername()));
-			player = new Player(parsedPacket_0.getUsername(), session, UUID.randomUUID(), this);
+			player = new Player(parsedPacket_0.getUsername(), session, this);
 			manager.getPlayers().add(player);
-			return playerToJson(player);
+			return gson.toJson(player);
 		} else if (parsedPacket_0.getPlayerID() != 0) {
 			//if a playerID is send
 			try {
@@ -157,7 +169,7 @@ public class GameServerEndpoint {
 				} else {
 				//existing user logs in
 				player.setSession(session);
-				return playerToJson(player);
+				return gson.toJson(player);
 				}
 			} catch (IllegalArgumentException e) {
 				return e.getLocalizedMessage();
@@ -197,37 +209,6 @@ public class GameServerEndpoint {
 	/****************************************************************************
 	*	utility
 	****************************************************************************/
-	
-//	private void joinGame(UUID playerID, Session session) {
-//		AbstractGame gameToJoin = null;
-//		for (AbstractGame game: manager.getLobby()) {
-//			if (!game.isFull()) {
-//				gameToJoin = game;
-//			}
-//		}
-//		if (gameToJoin == null) {
-//			gameToJoin = new TicTacToeExample();
-//			logger.info("Created new Game: " + gameToJoin.ID.toString());
-//			manager.getLobby().add(gameToJoin);
-//			gameToJoin.registerObserver(this);
-//		}
-//		playerMap.put(playerID, session);
-//		gameToJoin.addActivePlayer(playerID);
-//		
-//		int fullGames = lobby.stream().map(x -> (x.isFull() ? 1 : 0)).reduce(0, Integer::sum);
-//		logger.info(String.format("Of %s games in the Lobby, there are %s full games ", manager.getLobby().size(), fullGames));	
-//	}
-	
-	private String playerToJson(AbstractPlayer player) {
-		JsonObject jsonObject = new JsonObject();
-		jsonObject.addProperty("username", player.getPlayerName());
-		jsonObject.addProperty("playerID", player.getPlayerID());
-		AbstractGame activeGame = manager.getGameByPlayer(player);
-		if (!(activeGame == null)) {
-			jsonObject.addProperty("gameID", activeGame.getID());
-		}
-		return new Gson().toJson(jsonObject);
-	}
 
 	public void update(Player player, AbstractGame game) {
 		try {

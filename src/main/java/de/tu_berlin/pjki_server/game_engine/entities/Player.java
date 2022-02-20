@@ -17,7 +17,7 @@ public class Player extends AbstractPlayer{
 	@Transient
 	private GameServerEndpoint serverEndpoint;
 	
-	public Player(String userName, Session session, UUID playerID, GameServerEndpoint serverEndpoint) {
+	public Player(String userName, Session session, GameServerEndpoint serverEndpoint) {
 		super(userName);
 		this.serverEndpoint = serverEndpoint;
 		this.session = session;

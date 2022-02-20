@@ -3,14 +3,14 @@ package de.tu_berlin.pjki_server;
 import org.junit.Test;
 
 import de.tu_berlin.pjki_server.examples.RandomBot;
-import de.tu_berlin.pjki_server.examples.TicTacToe;
+import de.tu_berlin.pjki_server.examples.TicTacToeTest;
 
 public class RandomBotTest {
 
 	
 	@Test
 	public void testMCTSBot() {
-		TicTacToe tttExample = new TicTacToe();
+		TicTacToeTest tttExample = new TicTacToeTest();
 		RandomBot bot1 = new RandomBot("bot1");
 		RandomBot bot2 = new RandomBot("bot2");
 		tttExample.registerObserver(bot1);

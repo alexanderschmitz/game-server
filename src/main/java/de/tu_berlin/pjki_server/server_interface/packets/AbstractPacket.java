@@ -1,7 +1,5 @@
 package de.tu_berlin.pjki_server.server_interface.packets;
 
-import java.util.UUID;
-
 public class AbstractPacket {
 	
 	

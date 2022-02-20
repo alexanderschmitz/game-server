@@ -8,9 +8,8 @@ public class Packet_4_Move extends AbstractPacket {
 	private String move;
 	
 	
-	public Packet_4_Move(Type type) {
+	public Packet_4_Move() {
 		super(Type.MOVE);
-		// TODO Auto-generated constructor stub
 	}
 
 

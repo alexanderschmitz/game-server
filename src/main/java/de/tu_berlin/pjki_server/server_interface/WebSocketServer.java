@@ -12,7 +12,7 @@ public class WebSocketServer {
 	}
 
 	public static void runServer() {
-		Server server = new Server("localhost", 8025, "/websockets", GameServerEndpoint.class, DatabaseEndpoint.class);
+		Server server = new Server("localhost", 8025, "/websockets", GameServerEndpoint.class);
 		
 		try {
 			server.start();

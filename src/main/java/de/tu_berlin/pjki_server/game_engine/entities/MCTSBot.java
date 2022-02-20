@@ -1,7 +1,6 @@
 package de.tu_berlin.pjki_server.game_engine.entities;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -10,6 +9,8 @@ import java.util.logging.Logger;
 
 import javax.persistence.Entity;
 import javax.persistence.Transient;
+
+import com.jcabi.aspects.Async;
 
 import de.tu_berlin.pjki_server.game_engine.AbstractGame;
 import de.tu_berlin.pjki_server.game_engine.State;
@@ -24,7 +25,7 @@ public class MCTSBot<T extends AbstractGame & MCTS> extends AbstractPlayer{
 	@Transient
 	private Logger log = Logger.getLogger(this.getClass().getName());
 	@Transient
-	Random random = new Random();
+	private Random random = new Random();
 	@Transient
 	private final Class<T> gameClass;
 	
@@ -33,6 +34,7 @@ public class MCTSBot<T extends AbstractGame & MCTS> extends AbstractPlayer{
 		this.gameClass = gameClass;
 	}	
 	
+	@Async
 	@Override
 	public void update(AbstractGame game) {
 		if (game.getCurrentPlayer().equals(this) && !game.isOver()) {
@@ -58,8 +60,7 @@ public class MCTSBot<T extends AbstractGame & MCTS> extends AbstractPlayer{
 				Node<T> rootNode = new Node<T>(null, null, gameCopy);
 				rootNode.setState(game.getState().clone());
 				long end = System.currentTimeMillis() + 1000;
-//				while (System.currentTimeMillis() < end) {
-				for (int i = 0; i<10; i++) {
+				while (System.currentTimeMillis() < end) {
 					Node<T> node = getPromisingChild(rootNode);		//selection
 					node.expandNode(this);			//expansion
 					Node<T> nodeToExplore = node;
@@ -127,8 +128,8 @@ public class MCTSBot<T extends AbstractGame & MCTS> extends AbstractPlayer{
 		if (nodeVisits == 0) {
 			return Double.MAX_VALUE;
 		} else {
-			return ((double) winScore / (double) nodeVisits) 
-					+ 1.41 * Math.sqrt(Math.log(totalVisits) / (double) nodeVisits);
+			return (winScore / nodeVisits) 
+					+ 1.41 * Math.sqrt(Math.log(totalVisits) / nodeVisits);
 		}
 	}
 	

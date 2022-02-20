@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import de.tu_berlin.pjki_server.examples.TicTacToe;
+import de.tu_berlin.pjki_server.examples.TicTacToeTest;
 import de.tu_berlin.pjki_server.game_engine.AbstractGame;
 import de.tu_berlin.pjki_server.game_engine.Observer;
 import de.tu_berlin.pjki_server.game_engine.entities.MCTSBot;
@@ -14,9 +14,9 @@ public class MCTSBotTest implements Observer{
 
 	@Test
 	public void testNodeGetLegalMoves() {
-		TicTacToe tttExample = new TicTacToe();
-		MCTSBot<TicTacToe> bot1 = new MCTSBot<TicTacToe>("bot1", TicTacToe.class);
-		MCTSBot<TicTacToe> bot2 = new MCTSBot<TicTacToe>("bot2", TicTacToe.class);
+		TicTacToeTest tttExample = new TicTacToeTest();
+		MCTSBot<TicTacToeTest> bot1 = new MCTSBot<TicTacToeTest>("bot1", TicTacToeTest.class);
+		MCTSBot<TicTacToeTest> bot2 = new MCTSBot<TicTacToeTest>("bot2", TicTacToeTest.class);
 		tttExample.registerObserver(bot1);
 		tttExample.registerObserver(bot2);
 		tttExample.registerObserver(this);
@@ -25,15 +25,12 @@ public class MCTSBotTest implements Observer{
 			tttExample.addActivePlayer(bot2);
 		} catch (MaximumPlayerNumberExceededException e) {
 			fail(e.getMessage());
-		}
-		System.out.println("Final state is: %s.".formatted(tttExample.toString()));
-		System.out.println("Winner is: %s.".formatted(tttExample.getWinner().toString()));
-		
+		}		
 	}
 
 	@Override
 	public void update(AbstractGame game) {
-		System.out.println("Updata received");
+		System.out.println("Update received");
 		System.out.println(game.toString());
 		
 	}
