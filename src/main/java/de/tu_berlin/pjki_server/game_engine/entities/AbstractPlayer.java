@@ -35,7 +35,13 @@ public abstract class AbstractPlayer implements Observer{
 
 	public void setPlayerID(long playerID) {
 		this.playerID = playerID;
+	}
+
+	@Override
+	public String toString() {
+		return "Player: %s".formatted(playerName);
 	}	
+	
 	
 	
 }

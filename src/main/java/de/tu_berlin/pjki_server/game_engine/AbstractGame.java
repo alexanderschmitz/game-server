@@ -22,6 +22,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import de.tu_berlin.pjki_server.game_engine.entities.AbstractPlayer;
 import de.tu_berlin.pjki_server.game_engine.entities.Player;
+import de.tu_berlin.pjki_server.game_engine.entities.Spectator;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 import de.tu_berlin.pjki_server.game_engine.exception.MaximumPlayerNumberExceededException;
 import de.tu_berlin.pjki_server.persistence.Controller;
@@ -310,6 +311,6 @@ public abstract class AbstractGame implements Subject, JsonSerializer<AbstractGa
 	public List<String> getMoveHistory() {
 		return moveHistory;
 	}
-	
+
 	
 }

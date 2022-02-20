@@ -42,7 +42,7 @@ public class TicTacToe extends AbstractGame implements MCTS {
 				&& board[combination[1]] == board[combination[2]] 
 				&& board[combination[1]] != 0){
 					setWinner(getActivePlayerList().get(board[combination[0]]-1));
-					log.info("Final Board: %s. Winner is: %s.".formatted(this.toString(), getWinner().getPlayerName()));
+//					log.info("Final Board: %s. Winner is: %s.".formatted(this.toString(), getWinner().getPlayerName()));
 					return true;
 				}
 		}
@@ -61,7 +61,7 @@ public class TicTacToe extends AbstractGame implements MCTS {
 				return false;
 			}
 		}
-		log.info("Final Board: %s. Draw.".formatted(this.toString()));
+//		log.info("Final Board: %s. Draw.".formatted(this.toString()));
 		return true;
 	}
 

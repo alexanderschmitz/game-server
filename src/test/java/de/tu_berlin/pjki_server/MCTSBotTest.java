@@ -5,10 +5,12 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import de.tu_berlin.pjki_server.examples.TicTacToe;
+import de.tu_berlin.pjki_server.game_engine.AbstractGame;
+import de.tu_berlin.pjki_server.game_engine.Observer;
 import de.tu_berlin.pjki_server.game_engine.entities.MCTSBot;
 import de.tu_berlin.pjki_server.game_engine.exception.MaximumPlayerNumberExceededException;
 
-public class MCTSBotTest {
+public class MCTSBotTest implements Observer{
 
 	@Test
 	public void testNodeGetLegalMoves() {
@@ -17,13 +19,22 @@ public class MCTSBotTest {
 		MCTSBot<TicTacToe> bot2 = new MCTSBot<TicTacToe>("bot2", TicTacToe.class);
 		tttExample.registerObserver(bot1);
 		tttExample.registerObserver(bot2);
+		tttExample.registerObserver(this);
 		try {
 			tttExample.addActivePlayer(bot1);
 			tttExample.addActivePlayer(bot2);
 		} catch (MaximumPlayerNumberExceededException e) {
 			fail(e.getMessage());
 		}
+		System.out.println("Final state is: %s.".formatted(tttExample.toString()));
+		System.out.println("Winner is: %s.".formatted(tttExample.getWinner().toString()));
 		
+	}
+
+	@Override
+	public void update(AbstractGame game) {
+		System.out.println("Updata received");
+		System.out.println(game.toString());
 		
 	}
 	

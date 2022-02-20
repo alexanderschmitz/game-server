@@ -38,7 +38,6 @@ public class MCTSBot<T extends AbstractGame & MCTS> extends AbstractPlayer{
 		if (game.getCurrentPlayer().equals(this) && !game.isOver()) {
 			try {
 				String move = calculateNextMove(game);
-				log.info("%s - Move: %s".formatted(getPlayerName(), move));
 				game.executeMove(this, move);				
 			} catch (IllegalMoveException e) {
 				e.printStackTrace();

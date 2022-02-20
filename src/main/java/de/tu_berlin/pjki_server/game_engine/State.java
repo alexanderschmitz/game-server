@@ -1,11 +1,18 @@
 package de.tu_berlin.pjki_server.game_engine;
 
+import java.io.Serializable;
 import java.util.Map;
-import com.google.gson.Gson;
 
-public class State implements Cloneable{
+import org.apache.commons.lang3.SerializationUtils;
+
+
+public class State implements Cloneable, Serializable{
 	
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5273988178240543934L;
 	private Map<String, Object> state;
 
 	public State(Map<String, Object> state) {
@@ -22,10 +29,7 @@ public class State implements Cloneable{
 
 	@Override
 	public State clone() throws CloneNotSupportedException {
-//		Gson gson = new Gson();
-//		String stateString = gson.toJson(this);
-//		State clone = gson.fromJson(stateString, State.class);
-		return (State) super.clone();
+		return SerializationUtils.clone(this);
 	}
 	
 	
