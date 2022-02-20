@@ -24,11 +24,11 @@ send messages as JSON. messageType defines the purpose of the message and can be
 
 General structure:
 {
-    "type": <messageType>,
-    "username" : <name>,
-    "playerID" : <providedAfterLogin>,
-    "move": <any string>,
-    "gameType" : <for 2 or 5>
+    "type": _messageType_,
+    "username" : _name_,
+    "playerID" : _providedAfterLogin_,
+    "move": _any string_,
+    "gameType" : _for 2 or 5_
 }
 
 Better documentation in the Paper.
