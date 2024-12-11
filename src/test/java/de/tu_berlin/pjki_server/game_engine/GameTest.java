@@ -4,19 +4,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.HashMap;
-import java.util.Map;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.theories.suppliers.TestedOn;
 
-import com.google.gson.Gson;
-
+import de.tu_berlin.pjki_server.game_engine.entities.AbstractPlayer;
+import de.tu_berlin.pjki_server.game_engine.entities.Player;
 import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
 
 public class GameTest {
 	
-	Game test;
+	AbstractGame test;
 	
 	@Before
 	public void initialiseTestVariables() {
@@ -25,20 +24,27 @@ public class GameTest {
 	
 	@Test
 	public void gameConstructor() {	
-		assertEquals(test.getValue("maxPlayerNumber"), Integer.toString(2));
-		assertEquals(test.getValue("currentPlayer"), "0");
-		assertEquals(test.getValue("draw"), Boolean.toString(false));
-		assertEquals(test.getValue("winner"), null);
+		assertEquals(test.getMaxPlayerNumber(), 2);
+		assertEquals(test.getCurrentPlayer(), null);
+		assertEquals(test.getWinner(), null);
 	}
 	
 	@Test
 	public void endTurn_shouldRotateTurns() {
-		test.setValue("currentPlayer", "0");
-		assertEquals(test.getValue("currentPlayer"), "0");
+		Player player1 = new Player("player1", null, null);
+		Player player2 = new Player("player2", null, null);
+		try {
+			test.addActivePlayer(player1);
+			test.addActivePlayer(player2);
+		} catch (Exception e) {
+			fail();
+		}
+		
+		assertEquals(test.getCurrentPlayer(), player1);
 		test.endTurn();
-		assertEquals(test.getValue("currentPlayer"), "1");
+		assertEquals(test.getCurrentPlayer(), player2);
 		test.endTurn();
-		assertEquals(test.getValue("currentPlayer"), "0");
+		assertEquals(test.getCurrentPlayer(), player1);
 	}
 	
 	@Test 
@@ -65,65 +71,80 @@ public class GameTest {
 	public void testNotifyObservers() {
 		GameObserver observer = new GameObserver();
 		test.registerObserver(observer);
-		test.notifyObservers();
-		assertEquals(test.getState(), observer.getState());
+		test.notifyAllObservers();
+		assertEquals(test, observer.getGame());
 	}
 	
 	@Test
-	public void setState_gameStateShouldEqualNewState() {
-		Map<String, String> state;
-		state = new HashMap<>();
-		state.put("maxPlayerNumber", "4");
-		state.put("currentPlayer", "1");
-		state.put("draw", Boolean.toString(true));
-		state.put("winner", null);
-		test.setState(state);
-		assertEquals(test.getState(), state);
+	public void testAddingTooManyPlayers() {
+		SampleGame testGame = new SampleGame();
+		int maxPlayers = testGame.getMaxPlayerNumber();
+		// completely fill the game with players
+		for (int i = 0; i < maxPlayers; i++) {
+			try {
+				testGame.addActivePlayer(new Player("Player" + i, null, null));
+			} catch (Exception e) {
+				fail();
+			}
+		}
+		// try to add one more player
+		try {
+			testGame.addActivePlayer(new Player("OneTooMany", null, null));
+			fail();
+		} catch (Exception e) {
+			return;
+		}
 	}
-	
-	@Test
-	public void stateToJson() {
-		Gson g = new Gson();  
-		System.out.println(g.toJson(test.getState()));
-	}
-	
-	
-	private class SampleGame extends Game{
 
-		@Override
-		public void setup(String[] args) {
+	
+	private class SampleGame extends AbstractGame{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public SampleGame() {
+			super(new State(new HashMap<String, Object>()));
+			// TODO Auto-generated constructor stub
 		}
 
 		@Override
-		public void move(String[] args) throws IllegalMoveException {
-		}
-
-		@Override
-		public boolean isOver(String[] args) {
+		public boolean checkIfOver() {
 			return false;
 		}
 
 		@Override
-		public Game getNewInstance() {
+		public AbstractGame getNewInstance() {
 			return null;
-		}	
+		}
+
+		@Override
+		public boolean checkIfDraw() {
+			return false;
+		}
+
+		@Override
+		public void move(AbstractPlayer player, String move) throws IllegalMoveException {
+			// TODO Auto-generated method stub
+			
+		}
+
 		
 	}
 	
 	private class GameObserver implements Observer {
 
-		private Map<String, String> state;
+		private AbstractGame game;
 		
 		@Override
-		public void update(Game game) {
-			this.state = game.getState();
-			
+		public void update(AbstractGame game) {
+			this.game = game;
 		}
 		
-		protected Map<String, String> getState(){
-			return state;
-		}
-		
+		protected AbstractGame getGame(){
+			return game;
+		}		
 	}
 
 }

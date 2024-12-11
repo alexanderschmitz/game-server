@@ -1,18 +1,14 @@
 package de.tu_berlin.pjki_server.game_engine;
 
-import de.tu_berlin.pjki_server.game_engine.exception.IllegalMoveException;
+import java.util.List;
 
 public interface Subject {
 	
 	//observer related functions
 	public void registerObserver(Observer o);
 	public void unregisterObserver(Observer o) throws Exception;
-    public void notifyObservers();
+    public void notifyAllObservers();
+    public void notifyObservers(List<Observer> o);
+    public void notifyObserver(Observer o);
     
-	
-	//game related functions
-	public void setup(String[] args);
-	public void move(String[] args) throws IllegalMoveException;	
-	public boolean isOver(String[] args);
-
 }

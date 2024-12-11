@@ -1,4 +1,4 @@
-package de.tu_berlin.pjki_server;
+package de.tu_berlin.pjki_server.examples;
 
 
 import java.util.ArrayList;
@@ -22,13 +22,13 @@ import de.tu_berlin.pjki_server.game_engine.mcts.MCTS;
  *
  */
 @Entity
-public class TicTacToeExample extends AbstractGame implements MCTS {
+public class TicTacToeTest extends AbstractGame implements MCTS {
 	private static final long serialVersionUID = 1L;
 	
 	
 	static int winComb[][] = {{0,1,2},{3,4,5},{6,7,8},{0,3,6},{1,4,7},{2,5,8},{0,4,8},{2,4,6}};
 	
-	public TicTacToeExample() {
+	public TicTacToeTest() {
 		super(new State(new HashMap<>()));
 		getState().put("board", new int[]{0,0,0,0,0,0,0,0,0});
 		getState().put("ply", 1);
@@ -36,8 +36,8 @@ public class TicTacToeExample extends AbstractGame implements MCTS {
 	
 	
 	@Override
-	public TicTacToeExample getNewInstance() {
-		return new TicTacToeExample();
+	public TicTacToeTest getNewInstance() {
+		return new TicTacToeTest();
 	}
 
 

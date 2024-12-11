@@ -1,16 +1,24 @@
 package de.tu_berlin.pjki_server;
 
-import de.tu_berlin.pjki_server.game_engine.Game;
+import de.tu_berlin.pjki_server.game_engine.Manager;
+import de.tu_berlin.pjki_server.server_interface.WebSocketServer;
 
 /*
  * Standard entry point
- * Usage: java de.tu_berlin.pjki_server.App <YourGame> <Port> 
+ * Usage: java de.tu_berlin.pjki_server.App
  * 
  */
 public class App {
+	
+	/**
+	 * 
+	 */
+	private static Manager manager = Manager.getManager();
+	
 	public static void main( String[] args ){
 		
-		Game ticTacToe = new TicTacToeExample();
+		manager.addGameType(TicTacToeExample.class);
+		WebSocketServer.runServer();
 		
 	}
 }

@@ -1,10 +1,11 @@
-C:\Users\alexa\bachelor\game-server\src\main\java\de\tu_berlin\pjki_server\server_interface\KnockKnockProtocol.java
-C:\Users\alexa\bachelor\game-server\src\main\java\de\tu_berlin\pjki_server\server_interface\ClientHandler.java
+C:\Users\alexa\bachelor\game-server\src\main\java\de\tu_berlin\pjki_server\server_interface\GameServerEndpoint.java
+C:\Users\alexa\bachelor\game-server\src\main\java\de\tu_berlin\pjki_server\server_interface\Message.java
 C:\Users\alexa\bachelor\game-server\src\main\java\de\tu_berlin\pjki_server\App.java
 C:\Users\alexa\bachelor\game-server\src\main\java\de\tu_berlin\pjki_server\game_engine\Observer.java
 C:\Users\alexa\bachelor\game-server\src\main\java\de\tu_berlin\pjki_server\game_engine\exception\IllegalMoveException.java
 C:\Users\alexa\bachelor\game-server\src\main\java\de\tu_berlin\pjki_server\TicTacToeExample.java
 C:\Users\alexa\bachelor\game-server\src\main\java\de\tu_berlin\pjki_server\game_engine\Subject.java
-C:\Users\alexa\bachelor\game-server\src\main\java\de\tu_berlin\pjki_server\server_interface\Main.java
+C:\Users\alexa\bachelor\game-server\src\main\java\de\tu_berlin\pjki_server\game_engine\Lobby.java
 C:\Users\alexa\bachelor\game-server\src\main\java\de\tu_berlin\pjki_server\game_engine\Game.java
-C:\Users\alexa\bachelor\game-server\src\main\java\de\tu_berlin\pjki_server\server_interface\ServerProtocol.java
+C:\Users\alexa\bachelor\game-server\src\main\java\de\tu_berlin\pjki_server\server_interface\DatabaseEndpoint.java
+C:\Users\alexa\bachelor\game-server\src\main\java\de\tu_berlin\pjki_server\server_interface\WebSocketServer.java
